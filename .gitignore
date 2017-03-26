@@ -90,3 +90,6 @@ ENV/
 
 # PyCharm's project settings for PyCharm's users
 .idea
+
+# Make sure your bot token doesn't get mixed into the repo.
+.token
