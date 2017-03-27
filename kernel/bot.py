@@ -1,10 +1,13 @@
 from discord.ext.commands import Bot
+from asyncio import coroutine
+import discord
 
 COMMAND_PREFIXES = ['!']
 DESC = """Le bot Discord de Kernel.
-Cool, opérationnel, mais ne fais pas de câlins."""
+Cool, opérationnel, mais ne fait pas de câlins."""
 COMMAND_NOT_FOUND = "La commande {} n'existe pas. Désolé."
 COMMAND_HAS_NO_SUBCOMMANDS = "La commande {0.name} n'a pas de sous-commandes."
+SERVER_NAME = "Anaheim Industries"
 
 
 class KernelBot(Bot):
@@ -15,6 +18,15 @@ class KernelBot(Bot):
                          command_not_found=COMMAND_NOT_FOUND,
                          command_has_no_subcommands=COMMAND_HAS_NO_SUBCOMMANDS)
         self.token = api_token
+        self.server_name = SERVER_NAME
+
+    @property
+    def server(self) -> discord.Server:
+        return discord.utils.find(lambda s: s.name == self.server_name, self.servers)
+
+    async def on_ready(self):
+        if self.user:
+            await self.send_message(self.server, "Hello world!")
 
     def run(self):
         super().run(self.token)
