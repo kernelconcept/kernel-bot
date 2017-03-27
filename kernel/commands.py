@@ -2,6 +2,11 @@ from discord.ext import commands
 
 
 class Commands:
+    """
+    General Commands cog.
+
+    This class contains the commands of the bot.
+    """
     def __init__(self,
                  bot: commands.Bot):
         self.bot = bot

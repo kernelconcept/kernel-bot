@@ -12,6 +12,12 @@ SERVER_NAME = "Anaheim Industries"
 
 
 class KernelBot(commands.Bot):
+    """
+    Kernel bot
+
+    This class defines the bot. It keeps settings and events
+    since we're just overriding the base Discord bot events.
+    """
     def __init__(self, api_token, test_channel_string: str = 'bot-test'):
         super().__init__(COMMAND_PREFIXES,
                          description=DESC,
