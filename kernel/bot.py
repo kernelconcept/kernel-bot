@@ -1,5 +1,4 @@
-from discord.ext.commands import Bot
-from asyncio import coroutine
+from discord.ext import commands
 import discord
 
 COMMAND_PREFIXES = ['!']
@@ -12,7 +11,7 @@ NEW_MEMBER = "Welcome to {0}, {1.mention} !"
 SERVER_NAME = "Anaheim Industries"
 
 
-class KernelBot(Bot):
+class KernelBot(commands.Bot):
     def __init__(self, api_token):
         super().__init__(COMMAND_PREFIXES,
                          description=DESC,

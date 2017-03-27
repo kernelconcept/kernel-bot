@@ -1,4 +1,5 @@
 from os.path import isfile
+from kernel.commands import Commands
 from kernel.bot import KernelBot
 
 
@@ -12,4 +13,7 @@ if __name__ == '__main__':
     if not isfile('.token'):
         prompt_token()
     token = open('.token', 'r').read()
-    KernelBot(api_token=token).run()
+    bot = KernelBot(api_token=token)
+    bot.add_cog(
+        Commands(bot))
+    bot.run()
