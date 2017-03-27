@@ -7,6 +7,8 @@ DESC = """Le bot Discord de Kernel.
 Cool, opérationnel, mais ne fait pas de câlins."""
 COMMAND_NOT_FOUND = "La commande {} n'existe pas. Désolé."
 COMMAND_HAS_NO_SUBCOMMANDS = "La commande {0.name} n'a pas de sous-commandes."
+NEW_MEMBER = "Welcome to {0}, {1.mention} !"
+
 SERVER_NAME = "Anaheim Industries"
 
 
@@ -27,6 +29,9 @@ class KernelBot(Bot):
     async def on_ready(self):
         if self.user:
             await self.send_message(self.server, "Hello world!")
+
+    async def on_member_join(self, member):
+        await self.send_message(self.server, NEW_MEMBER.format(SERVER_NAME, member))
 
     def run(self):
         super().run(self.token)
