@@ -12,7 +12,7 @@ SERVER_NAME = "Anaheim Industries"
 
 
 class KernelBot(commands.Bot):
-    def __init__(self, api_token):
+    def __init__(self, api_token, test_channel_string: str = 'bot-test'):
         super().__init__(COMMAND_PREFIXES,
                          description=DESC,
                          pm_help=True,  # Help don't spam, Help uses private messaging !
@@ -20,10 +20,17 @@ class KernelBot(commands.Bot):
                          command_has_no_subcommands=COMMAND_HAS_NO_SUBCOMMANDS)
         self.token = api_token
         self.server_name = SERVER_NAME
+        self.test_channel_string = test_channel_string
 
     @property
     def server(self) -> discord.Server:
         return discord.utils.find(lambda s: s.name == self.server_name, self.servers)
+
+    @property
+    def test_channel(self) -> discord.Channel:
+        for channel in self.server.channels:
+            if channel.name == self.test_channel_string:
+                return channel
 
     async def on_ready(self):
         if self.user:
@@ -31,6 +38,9 @@ class KernelBot(commands.Bot):
 
     async def on_member_join(self, member):
         await self.send_message(self.server, NEW_MEMBER.format(SERVER_NAME, member))
+
+    async def send_test(self, message):
+        await self.send_message(self.test_channel, message)
 
     def run(self):
         super().run(self.token)
