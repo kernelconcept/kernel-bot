@@ -1,4 +1,5 @@
 import discord
+import re
 
 
 def enrich_channel_name(server: discord.Server, channel_name: str) -> discord.Channel:
@@ -8,6 +9,9 @@ def enrich_channel_name(server: discord.Server, channel_name: str) -> discord.Ch
 
 
 def enrich_user_id(server: discord.Server, user_id: str) -> discord.Member:
+    if user_id.startswith('<'):
+        user = re.sub('[<>@!]', '', user_id)
     for member in server.members:
-        if member.id == user_id:
+        check = user or user_id
+        if member.id == check:
             return member

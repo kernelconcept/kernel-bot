@@ -21,19 +21,15 @@ class Commands:
             await self.bot.send_message(ctx.message.channel,
                                         'Avatar hash is {0.avatar} {0.avatar_url}'.format(author))
         else:
-            member = enrich_user_id(
-                server,
-                re.sub('[<>@]', '', user_id))
+            member = enrich_user_id(server, user_id)
             await self.bot.send_message(ctx.message.channel,
                                         'Avatar hash is {0.avatar} {0.avatar_url}'.format(member))
 
     @commands.command(pass_context=True)
-    async def roles(self, ctx: commands.Context, user: str):
+    async def role(self, ctx: commands.Context, user: str):
         author = ctx.message.author
         server = ctx.message.server
-        member = enrich_user_id(
-            server,
-            re.sub('[<>@]', '', user))
+        member = enrich_user_id(server, user)
         output = '{0.mention} a les rôles suivants:```\n'.format(member)
         for role in member.roles:
             if not role.name == '@everyone':
