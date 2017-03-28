@@ -1,4 +1,5 @@
 from discord.ext import commands
+from .replies import reply
 import discord
 
 COMMAND_PREFIXES = ['!']
@@ -8,7 +9,8 @@ COMMAND_NOT_FOUND = "La commande {} n'existe pas. Désolé."
 COMMAND_HAS_NO_SUBCOMMANDS = "La commande {0.name} n'a pas de sous-commandes."
 NEW_MEMBER = "Welcome to {0}, {1.mention} !"
 
-SERVER_NAME = "Anaheim Industries"
+SERVER_NAME = "Kernel Concept"
+GAME = "réfléchir au sens de la vie"
 
 
 class KernelBot(commands.Bot):
@@ -18,7 +20,7 @@ class KernelBot(commands.Bot):
     This class defines the bot. It keeps settings and events
     since we're just overriding the base Discord bot events.
     """
-    def __init__(self, api_token, test_channel_string: str = 'bot-test'):
+    def __init__(self, api_token, test_channel_string: str = 'bot'):
         super().__init__(COMMAND_PREFIXES,
                          description=DESC,
                          pm_help=True,  # Help don't spam, Help uses private messaging !
@@ -39,8 +41,12 @@ class KernelBot(commands.Bot):
                 return channel
 
     async def on_ready(self):
-        if self.user:
-            await self.send_message(self.server, "Hello world!")
+        print('Online.')
+        await self.change_presence(
+            game=discord.Game(name=GAME))
+
+    async def on_message(self, message):
+        await reply(message, self)
 
     async def on_member_join(self, member):
         await self.send_message(self.server, NEW_MEMBER.format(SERVER_NAME, member))
