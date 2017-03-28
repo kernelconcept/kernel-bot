@@ -1,4 +1,5 @@
 from discord.ext import commands
+from kernel import enrich_channel_name
 from .replies import reply
 import discord
 
@@ -20,7 +21,7 @@ class KernelBot(commands.Bot):
     This class defines the bot. It keeps settings and events
     since we're just overriding the base Discord bot events.
     """
-    def __init__(self, api_token, test_channel_string: str = 'bot'):
+    def __init__(self, api_token, test_channel_name: str = 'bot'):
         super().__init__(COMMAND_PREFIXES,
                          description=DESC,
                          pm_help=True,  # Help don't spam, Help uses private messaging !
@@ -28,7 +29,7 @@ class KernelBot(commands.Bot):
                          command_has_no_subcommands=COMMAND_HAS_NO_SUBCOMMANDS)
         self.token = api_token
         self.server_name = SERVER_NAME
-        self.test_channel_string = test_channel_string
+        self.test_channel_name = test_channel_name
 
     @property
     def server(self) -> discord.Server:
@@ -36,9 +37,7 @@ class KernelBot(commands.Bot):
 
     @property
     def test_channel(self) -> discord.Channel:
-        for channel in self.server.channels:
-            if channel.name == self.test_channel_string:
-                return channel
+        return enrich_channel_name(self.server, self.test_channel_name)
 
     async def on_ready(self):
         print('Online.')
