@@ -93,3 +93,6 @@ ENV/
 
 # Make sure your bot token doesn't get mixed into the repo.
 .token
+
+# The picture folder shouldn't be included with our repo.
+sources
