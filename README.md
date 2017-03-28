@@ -2,8 +2,8 @@
 Bot pour Kernel
 
 ## Instructions
-Made for Python 3.6.
-Deps: discord-py
+* Made for Python 3.6.
+* Deps: discord-py
 
 Set-up a virtualenv, `pip install -r requirements.txt` and boom, done.
 
