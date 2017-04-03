@@ -1,6 +1,9 @@
 aiohttp==1.0.5
 async-timeout==1.2.0
+asyncio-redis==0.14.3
 chardet==2.3.0
+contextlib2==0.5.4
 discord.py==0.16.7
 multidict==2.1.4
+raven==6.0.0
 websockets==3.2
