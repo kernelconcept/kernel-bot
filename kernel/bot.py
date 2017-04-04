@@ -10,7 +10,7 @@ COMMAND_NOT_FOUND = "La commande {} n'existe pas. Désolé."
 COMMAND_HAS_NO_SUBCOMMANDS = "La commande {0.name} n'a pas de sous-commandes."
 NEW_MEMBER = "Welcome to {0}, {1.mention} !"
 
-SERVER_NAME = "Kernel Concept"
+SERVER_NAME = "Anaheim Industries"
 GAME = "réfléchir au sens de la vie"
 
 

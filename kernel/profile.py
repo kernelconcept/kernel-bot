@@ -14,10 +14,20 @@ sentry = Client('https://62ffbf83e1204334ae60fd85305239f2:c8033d9c0312464f87593d
 LIVE_PERSONS = []
 
 
+class Project:
+    """
+    Project class
+    """
+    def __init__(self):
+        pass
+
+
 class Badge:
     """
     Badge class
     """
+    def __init__(self):
+        pass
 
 
 class Person:
@@ -38,19 +48,15 @@ class Person:
 
         LIVE_PERSONS.append(self)
 
-    def sync(self):
-        pass
 
 class Profile:
     """
     Profile cog.
     """
 
-    def __init__(self, bot: commands.Bot, discord_id: str):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.redis = self.load() or None
-        self.discord_id = discord_id
-        self.person = Person(self.discord_id, self.redis)
 
     async def load(self, host='127.0.0.1', port=6379):
         """
@@ -65,3 +71,31 @@ class Profile:
             return connection
         except asyncio_redis.exceptions.Error:
             sentry.captureMessage('Could not initiate a connection to Redis.')
+
+    @commands.command(pass_context=True)
+    async def init(self, ctx: commands.Context):
+        pass
+
+    @commands.command(pass_context=True)
+    async def reset(self, ctx: commands.Context):
+        pass
+
+    @commands.command(pass_context=True)
+    async def thanks(self, ctx: commands.Context, member):
+        pass
+
+    @commands.command(pass_context=True)
+    async def available(self, ctx: commands.Context, member):
+        pass
+
+    @commands.command(pass_context=True)
+    async def nick(self, ctx: commands.Context, member):
+        pass
+
+    @commands.command(pass_context=True)
+    async def desc(self, ctx: commands.Context, member):
+        pass
+
+    @commands.command(pass_context=True)
+    async def badge(self, ctx: commands.Context, member):
+        pass
