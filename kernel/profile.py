@@ -11,8 +11,6 @@ import asyncio_redis
 
 sentry = Client('https://62ffbf83e1204334ae60fd85305239f2:c8033d9c0312464f87593d93b7040a11@sentry.io/154891')
 
-LIVE_PERSONS = []
-
 
 class Project:
     """
@@ -45,8 +43,6 @@ class Person:
         self.title: str = None
         self.desc: str = None
         self.badges: List = []
-
-        LIVE_PERSONS.append(self)
 
 
 class Profile:
