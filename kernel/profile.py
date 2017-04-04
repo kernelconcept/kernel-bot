@@ -52,6 +52,10 @@ class Person:
 class Profile:
     """
     Profile cog.
+
+    This cog creates a Redis connection to store and fetch `profiles`.
+    These consists in adding more custom fields to a discord_id according to
+    Kernel Concept's works. The code itself is pretty self-explanatory so take a look.
     """
 
     def __init__(self, bot: commands.Bot):
