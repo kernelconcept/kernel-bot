@@ -48,10 +48,10 @@ class Person:
     async def exists(self) -> bool:
         return bool(await self.redis.get('person/{}'.format(self.discord_id)))
 
-    async def get_badges(self):
+    async def get_badges(self) -> List:
         pass
 
-    async def update(self, key):
+    async def update(self, key) -> str or int:
         value = await self.redis.get('person/{}/{}'.format(
             self.discord_id,
             key
