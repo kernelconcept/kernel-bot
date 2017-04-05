@@ -6,7 +6,7 @@ profile.py
 
 from raven import Client
 from discord.ext import commands
-from typing import List
+from typing import List, Optional, Union
 import asyncio_redis
 
 sentry = Client('https://62ffbf83e1204334ae60fd85305239f2:c8033d9c0312464f87593d93b7040a11@sentry.io/154891')
@@ -51,7 +51,7 @@ class Person:
     async def get_badges(self) -> List:
         pass
 
-    async def update(self, key) -> str or int:
+    async def update(self, key) -> Union[str, int]:
         value = await self.redis.get('person/{}/{}'.format(
             self.discord_id,
             key
@@ -88,7 +88,9 @@ class Profile:
 
     @commands.command(pass_context=True)
     async def init(self, ctx: commands.Context):
-        pass
+        for member in self.bot.server.members:
+            if Person(member.id).exists:
+                pass
 
     @commands.command(pass_context=True)
     async def reset(self, ctx: commands.Context):
