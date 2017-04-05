@@ -35,14 +35,28 @@ class Person:
     def __init__(self, discord_id: str, redis):
         self.discord_id = discord_id
         self.redis = redis
-        self.last_recorded_name: str = None
-        self.thanks_count: int = None
-        self.project_status: bool = False
-        self.complete_projects: int = None
-        self.message_count: int = None
-        self.title: str = None
-        self.desc: str = None
-        self.badges: List = []
+        self.last_recorded_name: str = self.update('last_recorded_name') or None
+        self.thanks_count: int = self.update('thanks') or None
+        self.status: bool = self.update('status') or None
+        self.completed_projects: int = self.update('completed_projects') or None
+        self.message_count: int = self.update('message_count') or None
+        self.title: str = self.update('title') or None
+        self.desc: str = self.update('desc') or None
+        self.badges: List = self.get_badges() or []
+
+    @property
+    async def exists(self) -> bool:
+        return bool(await self.redis.get('person/{}'.format(self.discord_id)))
+
+    async def get_badges(self):
+        pass
+
+    async def update(self, key):
+        value = await self.redis.get('person/{}/{}'.format(
+            self.discord_id,
+            key
+        ))
+        return value
 
 
 class Profile:
