@@ -132,24 +132,34 @@ class Profile:
         pass
 
     @commands.command(pass_context=True, aliases=['merci'])
-    async def thanks(self, ctx: commands.Context, member, reason: str = None):
-        user = enrich_user_id(self.bot.server, member)
-        if user.id == ctx.message.author.id:
-            await self.bot.send_message(ctx.message.channel, 'Bien l\'amour propre ou ..?')
-        else:
-            person = Person(user.id, self.redis)
-            thanks_count = person.thanks()
-            if reason:
-                await self.bot.send_message(ctx.message.channel, THANKS.format(
-                    user.mention,
-                    thanks_count,
-                    self.format(reason)
-                ))
+    async def thanks(self, ctx: commands.Context, member: str = None, reason: str = None):
+        if member:
+            user = enrich_user_id(self.bot.server, member)
+            if user.id == ctx.message.author.id:
+                await self.bot.send_message(ctx.message.channel, 'Bien l\'amour propre ou ..?')
             else:
-                await self.bot.send_message(ctx.message.channel, THANKS_NO_MSG.format(
-                    user.mention,
-                    thanks_count
-                ))
+                person = Person(user.id, self.redis)
+                thanks_count = person.thanks()
+                if reason:
+                    await self.bot.send_message(ctx.message.channel, THANKS.format(
+                        user.mention,
+                        thanks_count,
+                        self.format(reason)
+                    ))
+                else:
+                    await self.bot.send_message(ctx.message.channel, THANKS_NO_MSG.format(
+                        user.mention,
+                        thanks_count
+                    ))
+        else:
+            person = Person(ctx.message.author.id, self.redis)
+            thanks_count = person.fetch('thanks')
+            if thanks_count:
+                thanks_count = int(thanks_count.decode('utf-8'))
+                await self.bot.send_message(ctx.message.channel, 'Tu as été remercié {} fois !'.format(thanks_count))
+            else:
+                await self.bot.send_message(ctx.message.channel,
+                                            'Tu n\'as jamais été remercié, être inutile que tu es.')
 
     @commands.command(pass_context=True)
     async def available(self, ctx: commands.Context, member):
