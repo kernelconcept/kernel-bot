@@ -8,10 +8,10 @@ def enrich_channel_name(server: discord.Server, channel_name: str) -> discord.Ch
             return channel
 
 
-def enrich_user_id(server: discord.Server, user_id: str) -> discord.Member:
-    if user_id.startswith('<'):
-        user = re.sub('[<>@!]', '', user_id)
+def enrich_user_id(server: discord.Server, user: str) -> discord.Member:
+    if user.startswith('<'):
+        user_id = re.sub('[<>@!]', '', user)
     for member in server.members:
-        check = user or user_id
+        check = user_id or user
         if member.id == check:
             return member
