@@ -20,20 +20,22 @@ NO_SELF_TITLE = "Tu n'as pas de titre, pauvre paysan que tu es."
 THANKS = "Tu as bien remercié {} ! (déjà remercié {} fois) ```{}```"
 THANKS_NO_MSG = "Tu as bien remercié {} ! (déjà remercié {} fois)"
 
+
 class Project:
     """
     Project class
     """
-    def __init__(self):
-        pass
+    def __init__(self, redis):
+        name = None
 
 
 class Badge:
     """
     Badge class
     """
-    def __init__(self):
-        pass
+    def __init__(self, redis):
+        self.id = None
+        self.name = None
 
 
 class Person:
@@ -57,11 +59,13 @@ class Person:
 
     @property
     def exists(self) -> bool:
-        value = self.redis.get('person/{}'.format(self.discord_id))
+        return self.redis.get('person/{}'.format(self.discord_id))
 
     def init(self):
         if not self.exists:
             self.redis.set('person/{}'.format(self.discord_id), True)
+            return True
+        return False
 
     async def get_badges(self) -> List:
         pass
@@ -119,11 +123,9 @@ class Profile:
         count = 0
         for member in self.bot.server.members:
             person = Person(member.id, self.redis)
-            print(person.discord_id)
-            if not person.exists:
+            if person.init():
                 count += 1
-                person.init()
-        await self.bot.send_message(ctx.message.channel, 'Operation complete. {} profiles were initialized.'.format(
+        await self.bot.send_message(ctx.message.channel, 'La base de données est maintenant à jour avec {} nouveaux profils.'.format(
             count
         ))
 
@@ -231,8 +233,8 @@ class Profile:
                     else:
                         desc = self.format(input_desc)
                         Person(ctx.message.author.id, self.redis).update('desc', desc)
-                        await self.bot.send_message(ctx.message.channel,
-                                                    'Your description has been set to : ```diff\n{}\n```'.format(
+                        await self.bot.send_message(ctx.message.author,
+                                                    'Je vois. J\'approuve donc ta demande en t\'assignant cette description : ```diff\n{}\n```'.format(
                                                         self.format(desc)
                                                     ))
         else:
