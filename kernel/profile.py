@@ -13,30 +13,17 @@ import re
 
 sentry = Client('https://62ffbf83e1204334ae60fd85305239f2:c8033d9c0312464f87593d93b7040a11@sentry.io/154891')
 
+USER_DOESNT_EXIST = "Cet utilisateur n'existe pas (ou je n'ai, du moins, pas réussi à le trouver dans ce channel)."
 NO_DESC = "Cet utilisateur n'a pas de description."
 NO_SELF_DESC = "Tu n'as pas de description."
-NO_TITLE = "Cet utilisateur n'a pas de titre (sale paysan va)."
+NO_TITLE = "Cet utilisateur n'a pas de titre."
 NO_SELF_TITLE = "Tu n'as pas de titre, pauvre paysan que tu es."
 THANKS = "Tu as bien remercié {} ! (déjà remercié {} fois) ```{}```"
 THANKS_NO_MSG = "Tu as bien remercié {} ! (déjà remercié {} fois)"
-
-
-class Project:
-    """
-    Project class
-    """
-    def __init__(self, redis):
-        name = None
-
-
-class Badge:
-    """
-    Badge class
-    """
-    def __init__(self, redis):
-        self.id = None
-        self.name = None
-
+AVAILABILITY_CHANGE = "{0.mention} Tu as bien changé ta disponibilité."
+AVAILABILITY_TRUE = "{0.name} est défini comme disponible."
+AVAILABILITY_FALSE = "{0.name} est défini comme indisponible ou n'a pas spécifié sa disponibilité."
+AVAILABILITY_WRONG_ARGS = "Tu dois fournir une disponibilité (oui/non/y/n) ou un/des utilisateurs."
 
 class Person:
     """
@@ -47,12 +34,10 @@ class Person:
         self.redis = redis
         self.last_recorded_name: str = None
         self.thanks_count: int = None
-        self.status: bool = None
-        self.completed_projects: int = None
+        self.is_available: bool = None
         self.message_count: int = None
         self.title: str = None
         self.desc: str = None
-        self.badges: List = []
 
         #  Set the redis key to True if profile doesn't exist.
         self.init()
@@ -61,14 +46,34 @@ class Person:
     def exists(self) -> bool:
         return self.redis.get('person/{}'.format(self.discord_id))
 
-    def init(self):
+    def init(self) -> bool:
         if not self.exists:
             self.redis.set('person/{}'.format(self.discord_id), True)
             return True
         return False
 
-    async def get_badges(self) -> List:
-        pass
+    @property
+    def available(self) -> bool:
+        r = self.redis.get('person/{}/availability'.format(self.discord_id))
+        if r:
+            r = r.decode('utf-8')
+            print(r)
+            if 'False' in r:
+                return False
+            elif 'True' in r:
+                return True
+        else:
+            return False
+
+    def set_availability(self, cmd) -> bool:
+        if cmd == 'oui':
+            self.redis.set('person/{}/availability'.format(self.discord_id), True)
+            return True
+        elif cmd == 'non':
+            self.redis.set('person/{}/availability'.format(self.discord_id), False)
+            return True
+        else:
+            return False
 
     def thanks(self):
         thanks = self.fetch('thanks')
@@ -136,7 +141,7 @@ class Profile:
     @commands.command(pass_context=True, aliases=['merci'])
     async def thanks(self, ctx: commands.Context, member: str = None, reason: str = None):
         if member:
-            user = enrich_user_id(self.bot.server, member)
+            user = enrich_user_id(self.bot.server, member) or ''
             if user.id == ctx.message.author.id:
                 await self.bot.send_message(ctx.message.channel, 'Bien l\'amour propre ou ..?')
             else:
@@ -163,11 +168,37 @@ class Profile:
                 await self.bot.send_message(ctx.message.channel,
                                             'Tu n\'as jamais été remercié, être inutile que tu es.')
 
-    @commands.command(pass_context=True)
-    async def available(self, ctx: commands.Context, member):
-        pass
+    @commands.command(pass_context=True, aliases=['dispo'])
+    async def available(self, ctx: commands.Context, cmd: str, *args):
+        if cmd == 'oui' or cmd == 'non':
+            r = Person(ctx.message.author.id, self.redis).set_availability(cmd)
+            await self.bot.send_message(ctx.message.channel, AVAILABILITY_CHANGE.format(
+                ctx.message.author
+            ))
+        else:
+            output = '```diff'
+            user = enrich_user_id(self.bot.server, cmd)
+            if user:
+                if Person(user.id, self.redis).available:
+                    output += '\n+ {}'.format(AVAILABILITY_TRUE.format(user))
+                else:
+                    output += '\n- {}'.format(AVAILABILITY_FALSE.format(user))
+                if args:
+                    for arg in args:
+                        user = enrich_user_id(self.bot.server, arg)
+                        if user:
+                            if Person(user.id, self.redis).available:
+                                output += '\n+ {}'.format(AVAILABILITY_TRUE.format(user))
+                            else:
+                                output += '\n- {}'.format(AVAILABILITY_FALSE.format(user))
+                        else:
+                            pass
+                output += '\n```'
+                await self.bot.send_message(ctx.message.channel, output)
+            else:
+                await self.bot.send_message(ctx.message.channel, AVAILABILITY_WRONG_ARGS)
 
-    @commands.command(pass_context=True)
+    @commands.command(pass_context=True, aliases=['titre'])
     async def nick(self, ctx: commands.Context, cmd: str = None, input_title: str = None):
         if cmd:
             if cmd.startswith('<'):

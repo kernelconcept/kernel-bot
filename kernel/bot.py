@@ -8,7 +8,7 @@ DESC = """Le bot Discord de Kernel.
 Cool, opérationnel, mais ne fait pas de câlins."""
 COMMAND_NOT_FOUND = "La commande {} n'existe pas. Désolé."
 COMMAND_HAS_NO_SUBCOMMANDS = "La commande {0.name} n'a pas de sous-commandes."
-NEW_MEMBER = "Welcome to {0}, {1.mention} !"
+NEW_MEMBER = "Bienvenue sur {0}, {1.mention} !"
 
 SERVER_NAME = "Kernel Concept"
 GAME = "réfléchir au sens de la vie"
@@ -21,7 +21,7 @@ class KernelBot(commands.Bot):
     This class defines the bot. It keeps settings and events
     since we're just overriding the base Discord bot events.
     """
-    def __init__(self, api_token, test_channel_name: str = 'bot'):
+    def __init__(self, api_token, test_channel_name: str = 'bot', welcome_channel_name: str = 'salle-commune'):
         super().__init__(COMMAND_PREFIXES,
                          description=DESC,
                          pm_help=True,  # Help don't spam, Help uses private messaging !
@@ -30,6 +30,7 @@ class KernelBot(commands.Bot):
         self.token = api_token
         self.server_name = SERVER_NAME
         self.test_channel_name = test_channel_name
+        self.welcome_channel_name = welcome_channel_name
 
     @property
     def server(self) -> discord.Server:
@@ -38,6 +39,10 @@ class KernelBot(commands.Bot):
     @property
     def test_channel(self) -> discord.Channel:
         return enrich_channel_name(self.server, self.test_channel_name)
+
+    @property
+    def welcome_channel(self) -> discord.Channel:
+        return enrich_channel_name(self.server, self.welcome_channel_name)
 
     async def on_ready(self):
         print('Online.')
@@ -48,7 +53,7 @@ class KernelBot(commands.Bot):
     #     await reply(message, self)
 
     async def on_member_join(self, member):
-        await self.send_message(self.server, NEW_MEMBER.format(SERVER_NAME, member))
+        await self.send_message(self.welcome_channel, NEW_MEMBER.format(SERVER_NAME, member))
 
     async def send_test(self, message):
         await self.send_message(self.test_channel, message)
