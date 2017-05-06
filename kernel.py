@@ -1,5 +1,6 @@
 from os import path
 from kernel.commands import Commands
+from kernel.profile import Profile
 from kernel.bot import KernelBot
 
 
@@ -15,5 +16,9 @@ if __name__ == '__main__':
     token = open('.token', 'r').read()
     bot = KernelBot(api_token=token)
     bot.add_cog(
-        Commands(bot))
+        Commands(bot)
+    )
+    bot.add_cog(
+        Profile(bot)
+    )
     bot.run()

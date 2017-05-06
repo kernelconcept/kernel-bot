@@ -1,6 +1,8 @@
 from discord.ext import commands
 from kernel import enrich_user_id
+from kernel.text import COMMAND_ROLE_NO_ARGS_GIVEN
 import re
+import sys
 
 
 class Commands:
@@ -14,27 +16,43 @@ class Commands:
         self.bot = bot
 
     @commands.command(pass_context=True)
-    async def avatar(self, ctx: commands.Context, user_id):
+    async def avatar(self, ctx: commands.Context, user_id: str = None):
         author = ctx.message.author
         server = ctx.message.server
-        if user_id == "me":
+        if not user_id:
             await self.bot.send_message(ctx.message.channel,
-                                        'Avatar hash is {0.avatar} {0.avatar_url}'.format(author))
+                                        'Ton avatar: {0.avatar_url}'.format(author))
         else:
             member = enrich_user_id(server, user_id)
             await self.bot.send_message(ctx.message.channel,
-                                        'Avatar hash is {0.avatar} {0.avatar_url}'.format(member))
+                                        'L\'avatar de {0.mention}: {0.avatar_url}'.format(member))
 
     @commands.command(pass_context=True)
-    async def role(self, ctx: commands.Context, user: str):
+    async def kill(self, ctx: commands.Context):
+        if ctx.message.author.name == 'Afranche':
+            await self.bot.send_message(ctx.message.channel,
+                                        'Yes my master.')
+            sys.exit(0)
+
+    @commands.command(pass_context=True, aliases=['who', 'quiestu', 'kernelbot'])
+    async def whoareyou(self, ctx: commands.Context):
+        await self.bot.send_message(ctx.message.channel,
+                                    'Je suis le très rare Kernel Bot aux quatres yeux. Je réponds à tout le monde. Je vois tout ceux qui sont ici. Je sais ce que vous faites.')
+
+    @commands.command(pass_context=True)
+    async def role(self, ctx: commands.Context, user: str = None):
         author = ctx.message.author
         server = ctx.message.server
-        member = enrich_user_id(server, user)
-        output = '{0.mention} a les rôles suivants:```\n'.format(member)
-        for role in member.roles:
-            if not role.name == '@everyone':
-                output += '* {}\n'.format(
-                    re.sub('@', '', role.name)
-                )
-        output += '```'
-        await self.bot.send_message(ctx.message.channel, output)
+        if not user:
+            await self.bot.delete_message(ctx.message)
+            await self.bot.send_message(author, COMMAND_ROLE_NO_ARGS_GIVEN.format(author))
+        else:
+            member = enrich_user_id(server, user)
+            output = '{0.mention} a les rôles suivants:```\n'.format(member)
+            for role in member.roles:
+                if not role.name == '@everyone':
+                    output += '* {}\n'.format(
+                        re.sub('@', '', role.name)
+                    )
+            output += '```'
+            await self.bot.send_message(ctx.message.channel, output)
