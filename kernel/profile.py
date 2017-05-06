@@ -6,7 +6,7 @@ profile.py
 
 from raven import Client
 from discord.ext import commands
-from kernel import enrich_user_id
+from kernel import enrich_user_id, enrich_role_name
 from typing import List, Union
 import redis
 import re
@@ -25,15 +25,17 @@ AVAILABILITY_TRUE = "{0.name} est défini comme disponible."
 AVAILABILITY_FALSE = "{0.name} est défini comme indisponible ou n'a pas spécifié sa disponibilité."
 AVAILABILITY_WRONG_ARGS = "Tu dois fournir une disponibilité (oui/non/y/n) ou un/des utilisateurs."
 
+
 class Person:
     """
     Person class
     """
     def __init__(self, discord_id: str, redis):
         self.discord_id = discord_id
+        self.redis = redis
 
         #  Set the redis key to True if profile doesn't exist.
-        self.init()
+        self.was_just_created = self.init()
 
     @property
     def exists(self) -> bool:
@@ -44,6 +46,10 @@ class Person:
             self.redis.set('person/{}'.format(self.discord_id), True)
             return True
         return False
+
+    def reset(self):
+        for key in self.redis.scan_iter(match='person/{}*'.format(self.discord_id)):
+            self.redis.delete(key)
 
     @property
     def title(self) -> str:
@@ -64,7 +70,6 @@ class Person:
         r = self.fetch('availability')
         if r:
             r = r.decode('utf-8')
-            print(r)
             if 'False' in r:
                 return False
             elif 'True' in r:
@@ -131,15 +136,39 @@ class Profile:
         count = 0
         for member in self.bot.server.members:
             person = Person(member.id, self.redis)
-            if person.init():
+            if person.was_just_created:
                 count += 1
-        await self.bot.send_message(ctx.message.channel, 'La base de données est maintenant à jour avec {} nouveaux profils.'.format(
-            count
-        ))
+        if count:
+            if count == 1:
+                await self.bot.send_message(ctx.message.channel, 'Une personne a été ajoutée.')
+            await self.bot.send_message(ctx.message.channel, 'J\'ai annexé {} nouvelles personnes.'.format(
+                count
+            ))
+        else:
+            await self.bot.send_message(ctx.message.channel, 'La base de données est déjà à jour.')
 
     @commands.command(pass_context=True)
-    async def reset(self, ctx: commands.Context):
-        pass
+    async def reset(self, ctx: commands.Context, user: str = None):
+        if not user:
+            Person(ctx.message.author.id, self.redis).reset()
+        else:
+            Person(user, self.redis).reset()
+        await self.bot.send_message(ctx.message.channel, 'Supprimé.')
+
+    @commands.command(pass_context=True)
+    async def cleanse(self, ctx: commands.Context):
+        admin_role = 'admin'
+        has_admin = False
+        for role in ctx.message.author.roles:
+            if role == enrich_role_name(self.bot.server, admin_role):
+                has_admin = True
+        if has_admin:
+            for member in self.bot.server.members:
+                Person(member.id, self.redis).reset()
+            await self.bot.send_message(ctx.message.channel,
+                                        'Tout le personnel Kernel a été éradiqué dans d\'horribles souffrances.')
+        else:
+            await self.bot.send_message(ctx.message.channel, 'Tu n\'as pas le droit d\'utiliser cette commande.')
 
     @commands.command(pass_context=True, aliases=['merci'])
     async def thanks(self, ctx: commands.Context, member: str = None, reason: str = None):

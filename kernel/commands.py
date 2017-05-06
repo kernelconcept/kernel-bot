@@ -2,6 +2,7 @@ from discord.ext import commands
 from kernel import enrich_user_id
 from kernel.text import COMMAND_ROLE_NO_ARGS_GIVEN
 import re
+import sys
 
 
 class Commands:
@@ -25,6 +26,13 @@ class Commands:
             member = enrich_user_id(server, user_id)
             await self.bot.send_message(ctx.message.channel,
                                         'L\'avatar de {0.mention}: {0.avatar_url}'.format(member))
+
+    @commands.command(pass_context=True)
+    async def kill(self, ctx: commands.Context):
+        if ctx.message.author.name == 'Afranche':
+            await self.bot.send_message(ctx.message.channel,
+                                        'Yes my master.')
+            sys.exit(0)
 
     @commands.command(pass_context=True, aliases=['who', 'quiestu', 'kernelbot'])
     async def whoareyou(self, ctx: commands.Context):
