@@ -31,13 +31,6 @@ class Person:
     """
     def __init__(self, discord_id: str, redis):
         self.discord_id = discord_id
-        self.redis = redis
-        self.last_recorded_name: str = None
-        self.thanks_count: int = None
-        self.is_available: bool = None
-        self.message_count: int = None
-        self.title: str = None
-        self.desc: str = None
 
         #  Set the redis key to True if profile doesn't exist.
         self.init()
@@ -53,8 +46,22 @@ class Person:
         return False
 
     @property
+    def title(self) -> str:
+        return self.fetch('title')
+
+    @property
+    def desc(self) -> str:
+        return self.fetch('desc')
+
+    @property
+    def thanks_count(self) -> int:
+        thanks = self.fetch('thanks')
+        if thanks:
+            return int(thanks)
+
+    @property
     def available(self) -> bool:
-        r = self.redis.get('person/{}/availability'.format(self.discord_id))
+        r = self.fetch('availability')
         if r:
             r = r.decode('utf-8')
             print(r)
@@ -67,21 +74,17 @@ class Person:
 
     def set_availability(self, cmd) -> bool:
         if cmd == 'oui':
-            self.redis.set('person/{}/availability'.format(self.discord_id), True)
+            self.update('availability', True)
             return True
         elif cmd == 'non':
-            self.redis.set('person/{}/availability'.format(self.discord_id), False)
+            self.update('availability', False)
             return True
         else:
             return False
 
-    def thanks(self):
-        thanks = self.fetch('thanks')
-        if thanks:
-            thanks = int(thanks.decode('utf-8'))
-        self.thanks_count = thanks or 0
-        self.thanks_count += 1
-        self.update('thanks', self.thanks_count)
+    def thanks(self) -> int:
+        thanks = self.thanks_count or 0
+        self.update('thanks', thanks + 1)
         return self.thanks_count - 1
 
     def fetch(self, key) -> Union[str, int]:
@@ -229,7 +232,7 @@ class Profile:
                                                     ))
         else:
             author = ctx.message.author
-            user_title = Person(author.id, self.redis).fetch('title')
+            user_title = Person(author.id, self.redis).title
             if not user_title:
                 await self.bot.send_message(ctx.message.channel, NO_SELF_TITLE)
             else:
@@ -270,7 +273,7 @@ class Profile:
                                                     ))
         else:
             author = ctx.message.author
-            user_desc = Person(author.id, self.redis).fetch('desc')
+            user_desc = Person(author.id, self.redis).desc
             if not user_desc:
                 await self.bot.send_message(ctx.message.channel, NO_SELF_DESC)
             else:
