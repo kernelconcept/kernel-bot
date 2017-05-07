@@ -7,6 +7,7 @@ profile.py
 from raven import Client
 from discord.ext import commands
 from kernel import enrich_user_id, enrich_role_name
+from kernel.image import generate_profile
 from typing import List, Union
 import redis
 import re
@@ -169,6 +170,35 @@ class Profile:
                                         'Tout le personnel Kernel a été éradiqué dans d\'horribles souffrances.')
         else:
             await self.bot.send_message(ctx.message.channel, 'Tu n\'as pas le droit d\'utiliser cette commande.')
+
+    @commands.command(pass_context=True)
+    async def profile(self, ctx: commands.Context):
+        profile = ctx.message.author
+        profile_title = Person(profile.id, self.redis).title
+        profile_thanks = Person(profile.id, self.redis).thanks_count
+        profile_desc = Person(profile.id, self.redis).desc
+        if profile_title:
+            profile_title = profile_title.decode('utf-8')
+        if profile_thanks:
+            profile_thanks = int(profile_thanks.decode('utf-8'))
+        if profile_desc:
+            profile_desc = profile_desc.decode('utf-8')
+        picture = generate_profile(
+            profile,
+            profile.name,
+            profile_title or 'Aucun titre',
+            profile_desc or 'Pas de description',
+            profile.avatar_url,
+            profile_thanks or 0,
+        )
+        if picture:
+            await self.bot.send_file(
+                ctx.message.channel,
+                picture,
+                content='{0.mention} Voilà ton image de profil.'.format(profile),
+            )
+        else:
+            await self.bot.send_message(ctx.message.channel, 'Je n\'ai pas réussi à générer ton image.')
 
     @commands.command(pass_context=True, aliases=['merci'])
     async def thanks(self, ctx: commands.Context, member: str = None, reason: str = None):

@@ -12,7 +12,7 @@ HEADERS = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KH
            'Connection': 'keep-alive'}
 
 
-def generate_avatar(avatar_url):
+def generate_avatar(avatar_url, id):
     base = Image.open(BASE_DIR + '/templates/base.png')
     r = Request(avatar_url, headers=HEADERS)
     content = urlopen(r).read()
@@ -20,14 +20,22 @@ def generate_avatar(avatar_url):
         f.write(content)
         f.close()
     avatar = Image.open(BASE_DIR + '/pictures/treating.png').resize((944, 944))
+    avatar.save(BASE_DIR + '/chocolat.png')
     base.paste(avatar, (573, 6))
-    base.save(BASE_DIR + '/okay.png')
+    base.save(BASE_DIR + '/pictures/temp_{}.png'.format(id))
+    return BASE_DIR + '/pictures/temp_{}.png'.format(id)
 
 
-def generate_profile(id: str, name: str, title: str, desc: str, avatar: str, thanks: int):
+def generate_profile(id: str,
+                     profile_name: str,
+                     profile_title: str,
+                     profile_desc: str,
+                     avatar: str,
+                     profile_thanks: int):
     base = Image.open(BASE_DIR + '/templates/base.png')
     avatar_mask = Image.open(BASE_DIR + '/templates/avatarMask.png').convert('L')
-    avatar = Image.open(BASE_DIR + '/templates/defaultAvatar.png')
+    avatar_link = generate_avatar(avatar, id)
+    avatar = Image.open(avatar_link)
     disponibility = Image.open(BASE_DIR + '/templates/disponibility_y.png')
     avatar_ring = Image.open(BASE_DIR + '/templates/avatarBorder.png')
     gradation = Image.open(BASE_DIR + '/templates/gradation.png')
@@ -54,12 +62,14 @@ def generate_profile(id: str, name: str, title: str, desc: str, avatar: str, tha
     numeric = ImageFont.truetype(BASE_DIR + '/templates/font.ttf', 140)
     thanks = ImageFont.truetype(BASE_DIR + '/templates/font.ttf', 78)
     desc = ImageFont.truetype(BASE_DIR + '/templates/font.ttf', 50)
-    draw.text((40, 20), 'Djayd Nova', font=title, fill=(0, 0, 0, 255))
-    draw.text((60, 170), 'Futur apprenti', font=subtitle, fill=(100, 100, 100, 255))
-    draw.text((35, 566), '78', font=numeric, fill=(246, 78, 52, 255))
+    draw.text((40, 20), '{}'.format(profile_name), font=title, fill=(0, 0, 0, 255))
+    draw.text((60, 170), '{}'.format(profile_title), font=subtitle, fill=(100, 100, 100, 255))
+    draw.text((35, 566), '{}'.format(profile_thanks), font=numeric, fill=(246, 78, 52, 255))
     draw.text((35, 726), 'Remerciements', font=thanks, fill=(246, 78, 52, 255))
-    draw.text((130, 880), LOREM_IPSUM[0:80], font=desc, fill=(255, 255, 255, 255))
-    draw.text((190, 940), LOREM_IPSUM[80:150], font=desc, fill=(255, 255, 255, 255))
-    draw.text((250, 1000), LOREM_IPSUM[150:220], font=desc, fill=(255, 255, 255, 255))
-    draw.text((310, 1060), LOREM_IPSUM[220:], font=desc, fill=(255, 255, 255, 255))
-    base.save(BASE_DIR + '/okay.png')
+    draw.text((130, 880), 'aaa', font=desc, fill=(255, 255, 255, 255))
+    draw.text((190, 940), 'aaa', font=desc, fill=(255, 255, 255, 255))
+    draw.text((250, 1000), 'aaa', font=desc, fill=(255, 255, 255, 255))
+    draw.text((310, 1060), 'aaa', font=desc, fill=(255, 255, 255, 255))
+    base.save(BASE_DIR + '/pictures/{}.png'.format(id))
+    os.remove(avatar_link)
+    return BASE_DIR + '/pictures/{}.png'.format(id)
