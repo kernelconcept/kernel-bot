@@ -23,7 +23,7 @@ def generate_avatar(avatar_url, id):
     avatar_w, avatar_h = avatar.size
     base_w, base_h = base.size
     pos_x = (base_w-avatar_w)//2
-    base.paste(avatar, (pos_x, 6))
+    base.paste(avatar, (pos_x, 24))
     base.save(BASE_DIR + '/pictures/temp_{}.png'.format(id))
     return BASE_DIR + '/pictures/temp_{}.png'.format(id)
 
@@ -44,6 +44,14 @@ def generate_profile(id: str,
         disponibility = Image.open(BASE_DIR + '/templates/disponibility_y.png')
     else:
         disponibility = Image.open(BASE_DIR + '/templates/disponibility.png')
+    if len(profile_name) <= 8:
+        name_font = 120
+    elif len(profile_name) <= 10:
+        name_font = 100
+    elif len(profile_name) <= 14:
+        name_font = 80
+    else:
+        name_font = 40
     top_layer = Image.open(BASE_DIR + '/templates/topLayer.png')
 
     base.paste(avatar, (0, 0), mask=avatar_mask)
@@ -51,7 +59,7 @@ def generate_profile(id: str,
     base.paste(disponibility, (0, 0), mask=disponibility)
 
     draw = ImageDraw.Draw(base)
-    title = ImageFont.truetype(BASE_DIR + '/templates/font.ttf', 120)
+    title = ImageFont.truetype(BASE_DIR + '/templates/font.ttf', name_font)
     # TODO: size 48, if less than 14 then go for
     subtitle = ImageFont.truetype(BASE_DIR + '/templates/font.ttf', 78)
     numeric = ImageFont.truetype(BASE_DIR + '/templates/font.ttf', 140)
