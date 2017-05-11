@@ -20,8 +20,10 @@ def generate_avatar(avatar_url, id):
         f.write(content)
         f.close()
     avatar = Image.open(BASE_DIR + '/pictures/treating.png').resize((944, 944))
-    avatar.save(BASE_DIR + '/chocolat.png')
-    base.paste(avatar, (573, 6))
+    avatar_w, avatar_h = avatar.size
+    base_w, base_h = base.size
+    pos_x = (base_w-avatar_w)//2
+    base.paste(avatar, (pos_x, 6))
     base.save(BASE_DIR + '/pictures/temp_{}.png'.format(id))
     return BASE_DIR + '/pictures/temp_{}.png'.format(id)
 
@@ -30,30 +32,23 @@ def generate_profile(id: str,
                      profile_name: str,
                      profile_title: str,
                      profile_desc: str,
+                     profile_disp: bool,
                      avatar: str,
                      profile_thanks: int):
     base = Image.open(BASE_DIR + '/templates/base.png')
     avatar_mask = Image.open(BASE_DIR + '/templates/avatarMask.png').convert('L')
     avatar_link = generate_avatar(avatar, id)
     avatar = Image.open(avatar_link)
-    disponibility = Image.open(BASE_DIR + '/templates/disponibility_y.png')
-    avatar_ring = Image.open(BASE_DIR + '/templates/avatarBorder.png')
-    gradation = Image.open(BASE_DIR + '/templates/gradation.png')
-    description_base = Image.open(BASE_DIR + '/templates/descriptionBase.png')
-    blue_corner = Image.open(BASE_DIR + '/templates/blueCorner.png')
-    orange_corner = Image.open(BASE_DIR + '/templates/orangeCorner.png')
-    blue_arrow = Image.open(BASE_DIR + '/templates/blueArrow.png')
-    heart = Image.open(BASE_DIR + '/templates/heart.png')
+
+    if profile_disp:
+        disponibility = Image.open(BASE_DIR + '/templates/disponibility_y.png')
+    else:
+        disponibility = Image.open(BASE_DIR + '/templates/disponibility.png')
+    top_layer = Image.open(BASE_DIR + '/templates/topLayer.png')
 
     base.paste(avatar, (0, 0), mask=avatar_mask)
-    base.paste(avatar_ring, (0, 0), mask=avatar_ring)
+    base.paste(top_layer, (0, 0), mask=top_layer)
     base.paste(disponibility, (0, 0), mask=disponibility)
-    base.paste(gradation, (0, 0), mask=gradation)
-    base.paste(description_base, (0, 0), mask=description_base)
-    base.paste(blue_corner, (0, 0), mask=blue_corner)
-    base.paste(orange_corner, (0, 0), mask=orange_corner)
-    base.paste(blue_arrow, (0, 0), mask=blue_arrow)
-    base.paste(heart, (0, 0), mask=heart)
 
     draw = ImageDraw.Draw(base)
     title = ImageFont.truetype(BASE_DIR + '/templates/font.ttf', 120)

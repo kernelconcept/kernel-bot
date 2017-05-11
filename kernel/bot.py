@@ -8,7 +8,9 @@ DESC = """Le bot Discord de Kernel.
 Cool, opérationnel, mais ne fait pas de câlins."""
 COMMAND_NOT_FOUND = "La commande {} n'existe pas. Désolé."
 COMMAND_HAS_NO_SUBCOMMANDS = "La commande {0.name} n'a pas de sous-commandes."
-NEW_MEMBER = "Bienvenue sur {0}, {1.mention} !"
+NEW_MEMBER = "Une nouvelle recrue a rejoint nos rangs. \n\n Bienvenue sur {0}, {1.mention} !"
+MEMBER_LEAVE = "Tristement, {0.mention} a décidé de quitter nos rangs. Nous ne t'oublierons jamais."
+MEMBER_BAN = "Les administrateurs ont fait retentir le marteau ! {0.name} a subi la sentence martiale et nous a quitté."
 
 SERVER_NAME = "Kernel Concept"
 GAME = "réfléchir au sens de la vie"
@@ -54,6 +56,12 @@ class KernelBot(commands.Bot):
 
     async def on_member_join(self, member):
         await self.send_message(self.welcome_channel, NEW_MEMBER.format(SERVER_NAME, member))
+
+    async def on_member_remove(self, member):
+        await self.send_message(self.welcome_channel, MEMBER_LEAVE.format(member))
+
+    async def on_member_ban(self, member):
+        await self.send_message(self.welcome_channel, MEMBER_BAN.format(member))
 
     async def send_test(self, message):
         await self.send_message(self.test_channel, message)

@@ -177,10 +177,11 @@ class Profile:
         profile_title = Person(profile.id, self.redis).title
         profile_thanks = Person(profile.id, self.redis).thanks_count
         profile_desc = Person(profile.id, self.redis).desc
+        profile_disp = Person(profile.id, self.redis).available
         if profile_title:
             profile_title = profile_title.decode('utf-8')
         if profile_thanks:
-            profile_thanks = int(profile_thanks.decode('utf-8'))
+            profile_thanks = int(profile_thanks)
         if profile_desc:
             profile_desc = profile_desc.decode('utf-8')
         picture = generate_profile(
@@ -188,6 +189,7 @@ class Profile:
             profile.name,
             profile_title or 'Aucun titre',
             profile_desc or 'Pas de description',
+            profile_disp,
             profile.avatar_url,
             profile_thanks or 0,
         )

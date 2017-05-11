@@ -2,7 +2,8 @@ from discord.ext import commands
 from kernel import enrich_user_id
 from kernel.text import COMMAND_ROLE_NO_ARGS_GIVEN
 import re
-import sys
+
+CREATOR_ID = '132253217529659393'
 
 
 class Commands:
@@ -27,12 +28,14 @@ class Commands:
             await self.bot.send_message(ctx.message.channel,
                                         'L\'avatar de {0.mention}: {0.avatar_url}'.format(member))
 
-    @commands.command(pass_context=True)
+    @commands.command(pass_context=True, aliases=['headshot', 'close', 'expel'])
     async def kill(self, ctx: commands.Context):
-        if ctx.message.author.name == 'Afranche':
+        if ctx.message.author.id == CREATOR_ID:
             await self.bot.send_message(ctx.message.channel,
-                                        'Yes my master.')
-            sys.exit(0)
+                                        '[test] Reçu. Extinction en cours.')
+            await self.bot.close()
+        else:
+            await self.bot.send_message(ctx.message.channel, 'Tu n\'es pas autorisé à ordonner mon extinction.')
 
     @commands.command(pass_context=True, aliases=['who', 'quiestu', 'kernelbot'])
     async def whoareyou(self, ctx: commands.Context):
