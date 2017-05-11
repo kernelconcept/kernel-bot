@@ -52,10 +52,10 @@ def generate_profile(id: str,
     subtitle = ImageFont.truetype(BASE_DIR + '/templates/font-italic.ttf', 60)
     thanks = ImageFont.truetype(BASE_DIR + '/templates/font.ttf', 78)
     desc = ImageFont.truetype(BASE_DIR + '/templates/font.ttf', 45)
-    draw.text((1150, 110), '{}'.format(profile_name[0]), font=title, fill=(255, 255, 255, 255))
+    draw.text((1150, 110), '{}'.format(profile_name[0].upper()), font=title, fill=(255, 255, 255, 255))
     draw.text((1205, 129), '{}'.format(profile_name[1:].upper()), font=caps_title, fill=(255, 255, 255, 255))
     draw.text((1150, 200), '{}'.format(profile_title), font=subtitle, fill=(100, 100, 100, 255))
-    draw.text((1090, 970), '{} Remerciements'.format(profile_thanks), font=thanks, fill=(246, 78, 52, 255))
+    draw.text((1090, 970), '{} REMERCIEMENTS'.format(profile_thanks), font=thanks, fill=(246, 78, 52, 255))
     description = wrap(profile_desc, width=38)
     base_y = 350
     for line in description:
