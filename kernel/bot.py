@@ -51,9 +51,6 @@ class KernelBot(commands.Bot):
         await self.change_presence(
             game=discord.Game(name=GAME))
 
-    # async def on_message(self, message):
-    #     await reply(message, self)
-
     async def on_member_join(self, member):
         await self.send_message(self.welcome_channel, NEW_MEMBER.format(SERVER_NAME, member))
 

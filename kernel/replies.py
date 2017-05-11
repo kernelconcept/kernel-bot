@@ -18,3 +18,6 @@ async def reply(message: discord.Message, bot: commands.Bot):
         await bot.send_file(message.channel,
                             "sources/braingame.jpg",
                             content=REPLIES['musicbot/playdeny'].format(message.author.mention))
+
+    if message.content.upper() == "SQUISHY":
+        await bot.add_reaction(message, 'squishy')

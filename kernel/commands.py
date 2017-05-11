@@ -1,5 +1,5 @@
 from discord.ext import commands
-from kernel import enrich_user_id
+from kernel import enrich_user_id, enrich_emoji
 from kernel.text import COMMAND_ROLE_NO_ARGS_GIVEN
 import re
 
@@ -59,3 +59,7 @@ class Commands:
                     )
             output += '```'
             await self.bot.send_message(ctx.message.channel, output)
+
+    @commands.command(pass_context=True)
+    async def squishy(self, ctx: commands.Context):
+        await self.bot.add_reaction(ctx.message, enrich_emoji(self.bot.server, 'squishy'))

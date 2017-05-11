@@ -148,7 +148,7 @@ class Profile:
         else:
             await self.bot.send_message(ctx.message.channel, 'La base de données est déjà à jour.')
 
-    @commands.command(pass_context=True)
+    @commands.command(pass_context=True, aliases=['bonbonalafraise'])
     async def reset(self, ctx: commands.Context, user: str = None):
         if not user:
             Person(ctx.message.author.id, self.redis).reset()
@@ -215,7 +215,7 @@ class Profile:
                     await self.bot.send_message(ctx.message.channel, THANKS.format(
                         user.mention,
                         thanks_count,
-                        self.format(reason)
+                        reason,
                     ))
                 else:
                     await self.bot.send_message(ctx.message.channel, THANKS_NO_MSG.format(
@@ -322,15 +322,14 @@ class Profile:
                                                 'Tu dois fournir une description entre guillemets '
                                                 '(e.g. : "Ma description")')
                 else:
-                    if len(input_desc) > 360:
+                    if len(input_desc) > 150:
                         await self.bot.send_message(ctx.message.channel,
-                                                    'Ta description doit faire maximum 360 caractères.')
+                                                    'Ta description doit faire maximum 150 caractères.')
                     else:
-                        desc = self.format(input_desc)
-                        Person(ctx.message.author.id, self.redis).update('desc', desc)
+                        Person(ctx.message.author.id, self.redis).update('desc', input_desc)
                         await self.bot.send_message(ctx.message.author,
                                                     'Je vois. J\'approuve donc ta demande en t\'assignant cette description : ```diff\n{}\n```'.format(
-                                                        self.format(desc)
+                                                        input_desc
                                                     ))
         else:
             author = ctx.message.author
@@ -342,12 +341,6 @@ class Profile:
                     author.mention,
                     user_desc.decode('utf-8')
                 ))
-        await self.bot.delete_message(ctx.message)
-
-    def format(self, message):
-        output = re.sub('`', '', message)
-        output = re.sub('[_]', '\n', output)
-        return output
 
     @commands.command(pass_context=True)
     async def badge(self, ctx: commands.Context, member):

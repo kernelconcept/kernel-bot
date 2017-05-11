@@ -1,5 +1,6 @@
 from PIL import Image, ImageDraw, ImageFont
 from urllib.request import Request, urlopen
+from textwrap import wrap
 import os
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__)) + '/..'
@@ -19,11 +20,8 @@ def generate_avatar(avatar_url, id):
     with open(BASE_DIR + '/pictures/treating.png', mode='wb+') as f:
         f.write(content)
         f.close()
-    avatar = Image.open(BASE_DIR + '/pictures/treating.png').resize((944, 944))
-    avatar_w, avatar_h = avatar.size
-    base_w, base_h = base.size
-    pos_x = (base_w-avatar_w)//2
-    base.paste(avatar, (pos_x, 24))
+    avatar = Image.open(BASE_DIR + '/pictures/treating.png').resize((1148, 1148))
+    base.paste(avatar, (0, 0))
     base.save(BASE_DIR + '/pictures/temp_{}.png'.format(id))
     return BASE_DIR + '/pictures/temp_{}.png'.format(id)
 
@@ -44,40 +42,25 @@ def generate_profile(id: str,
         disponibility = Image.open(BASE_DIR + '/templates/disponibility_y.png')
     else:
         disponibility = Image.open(BASE_DIR + '/templates/disponibility.png')
-    if len(profile_name) <= 8:
-        name_font = 120
-        title_v = 170
-    elif len(profile_name) <= 10:
-        name_font = 100
-        title_v = 140
-    elif len(profile_name) <= 14:
-        name_font = 80
-        title_v = 120
-    else:
-        name_font = 40
-        title_v = 80
-    if len(profile_title) <= 14:
-        title_font = 78
-    else:
-        title_font = 48
     top_layer = Image.open(BASE_DIR + '/templates/topLayer.png')
     base.paste(avatar, (0, 0), mask=avatar_mask)
-    base.paste(top_layer, (0, 0), mask=top_layer)
     base.paste(disponibility, (0, 0), mask=disponibility)
+    base.paste(top_layer, (0, 0), mask=top_layer)
     draw = ImageDraw.Draw(base)
-    title = ImageFont.truetype(BASE_DIR + '/templates/font.ttf', name_font)
-    subtitle = ImageFont.truetype(BASE_DIR + '/templates/font.ttf', title_font)
-    numeric = ImageFont.truetype(BASE_DIR + '/templates/font.ttf', 140)
+    title = ImageFont.truetype(BASE_DIR + '/templates/font-bold.ttf', 80)
+    caps_title = ImageFont.truetype(BASE_DIR + '/templates/font-bold.ttf', 60)
+    subtitle = ImageFont.truetype(BASE_DIR + '/templates/font-italic.ttf', 60)
     thanks = ImageFont.truetype(BASE_DIR + '/templates/font.ttf', 78)
-    desc = ImageFont.truetype(BASE_DIR + '/templates/font.ttf', 50)
-    draw.text((40, 20), '{}'.format(profile_name), font=title, fill=(0, 0, 0, 255))
-    draw.text((60, title_v), '{}'.format(profile_title), font=subtitle, fill=(100, 100, 100, 255))
-    draw.text((35, 566), '{}'.format(profile_thanks), font=numeric, fill=(246, 78, 52, 255))
-    draw.text((35, 726), 'Remerciements', font=thanks, fill=(246, 78, 52, 255))
-    draw.text((130, 880), 'aaa', font=desc, fill=(255, 255, 255, 255))
-    draw.text((190, 940), 'aaa', font=desc, fill=(255, 255, 255, 255))
-    draw.text((250, 1000), 'aaa', font=desc, fill=(255, 255, 255, 255))
-    draw.text((310, 1060), 'aaa', font=desc, fill=(255, 255, 255, 255))
+    desc = ImageFont.truetype(BASE_DIR + '/templates/font.ttf', 45)
+    draw.text((1150, 110), '{}'.format(profile_name[0]), font=title, fill=(255, 255, 255, 255))
+    draw.text((1205, 129), '{}'.format(profile_name[1:].upper()), font=caps_title, fill=(255, 255, 255, 255))
+    draw.text((1150, 200), '{}'.format(profile_title), font=subtitle, fill=(100, 100, 100, 255))
+    draw.text((1090, 970), '{} Remerciements'.format(profile_thanks), font=thanks, fill=(246, 78, 52, 255))
+    description = wrap(profile_desc, width=38)
+    base_y = 350
+    for line in description:
+        draw.text((1150, base_y), '{}'.format(line), font=desc, fill=(0, 153, 204, 255))
+        base_y += 70
     base.save(BASE_DIR + '/pictures/{}.png'.format(id))
     os.remove(avatar_link)
     return BASE_DIR + '/pictures/{}.png'.format(id)
