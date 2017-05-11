@@ -156,7 +156,7 @@ class Profile:
             Person(user, self.redis).reset()
         await self.bot.send_message(ctx.message.channel, 'Supprimé.')
 
-    @commands.command(pass_context=True)
+    @commands.command(pass_context=True, aliases=['doom'])
     async def cleanse(self, ctx: commands.Context):
         admin_role = 'admin'
         has_admin = False
@@ -171,7 +171,7 @@ class Profile:
         else:
             await self.bot.send_message(ctx.message.channel, 'Tu n\'as pas le droit d\'utiliser cette commande.')
 
-    @commands.command(pass_context=True)
+    @commands.command(pass_context=True, aliases=['profil', 'carte', 'card'])
     async def profile(self, ctx: commands.Context):
         profile = ctx.message.author
         profile_title = Person(profile.id, self.redis).title
@@ -262,7 +262,7 @@ class Profile:
             else:
                 await self.bot.send_message(ctx.message.channel, AVAILABILITY_WRONG_ARGS)
 
-    @commands.command(pass_context=True, aliases=['titre'])
+    @commands.command(pass_context=True, aliases=['titre', 'title'])
     async def nick(self, ctx: commands.Context, cmd: str = None, input_title: str = None):
         if cmd:
             if cmd.startswith('<'):
@@ -303,7 +303,7 @@ class Profile:
                 ))
         await self.bot.delete_message(ctx.message)
 
-    @commands.command(pass_context=True)
+    @commands.command(pass_context=True, aliases=['description'])
     async def desc(self, ctx: commands.Context, cmd: str = None, input_desc: str = None):
         if cmd:
             if cmd.startswith('<'):
