@@ -7,6 +7,7 @@ profile.py
 from raven import Client
 from discord.ext import commands
 from kernel import enrich_user_id, enrich_role_name
+from kernel.image import generate_profile
 from typing import List, Union
 import redis
 import re
@@ -147,7 +148,7 @@ class Profile:
         else:
             await self.bot.send_message(ctx.message.channel, 'La base de données est déjà à jour.')
 
-    @commands.command(pass_context=True)
+    @commands.command(pass_context=True, aliases=['bonbonalafraise'])
     async def reset(self, ctx: commands.Context, user: str = None):
         if not user:
             Person(ctx.message.author.id, self.redis).reset()
@@ -155,7 +156,7 @@ class Profile:
             Person(user, self.redis).reset()
         await self.bot.send_message(ctx.message.channel, 'Supprimé.')
 
-    @commands.command(pass_context=True)
+    @commands.command(pass_context=True, aliases=['doom'])
     async def cleanse(self, ctx: commands.Context):
         admin_role = 'admin'
         has_admin = False
@@ -170,6 +171,37 @@ class Profile:
         else:
             await self.bot.send_message(ctx.message.channel, 'Tu n\'as pas le droit d\'utiliser cette commande.')
 
+    @commands.command(pass_context=True, aliases=['profil', 'carte', 'card'])
+    async def profile(self, ctx: commands.Context):
+        profile = ctx.message.author
+        profile_title = Person(profile.id, self.redis).title
+        profile_thanks = Person(profile.id, self.redis).thanks_count
+        profile_desc = Person(profile.id, self.redis).desc
+        profile_disp = Person(profile.id, self.redis).available
+        if profile_title:
+            profile_title = profile_title.decode('utf-8')
+        if profile_thanks:
+            profile_thanks = int(profile_thanks)
+        if profile_desc:
+            profile_desc = profile_desc.decode('utf-8')
+        picture = generate_profile(
+            profile,
+            profile.name,
+            profile_title or 'Aucun titre',
+            profile_desc or 'Pas de description',
+            profile_disp,
+            profile.avatar_url,
+            profile_thanks or 0,
+        )
+        if picture:
+            await self.bot.send_file(
+                ctx.message.channel,
+                picture,
+                content='{0.mention} Voilà ton image de profil.'.format(profile),
+            )
+        else:
+            await self.bot.send_message(ctx.message.channel, 'Je n\'ai pas réussi à générer ton image.')
+
     @commands.command(pass_context=True, aliases=['merci'])
     async def thanks(self, ctx: commands.Context, member: str = None, reason: str = None):
         if member:
@@ -183,7 +215,7 @@ class Profile:
                     await self.bot.send_message(ctx.message.channel, THANKS.format(
                         user.mention,
                         thanks_count,
-                        self.format(reason)
+                        reason,
                     ))
                 else:
                     await self.bot.send_message(ctx.message.channel, THANKS_NO_MSG.format(
@@ -230,7 +262,7 @@ class Profile:
             else:
                 await self.bot.send_message(ctx.message.channel, AVAILABILITY_WRONG_ARGS)
 
-    @commands.command(pass_context=True, aliases=['titre'])
+    @commands.command(pass_context=True, aliases=['titre', 'title'])
     async def nick(self, ctx: commands.Context, cmd: str = None, input_title: str = None):
         if cmd:
             if cmd.startswith('<'):
@@ -271,7 +303,7 @@ class Profile:
                 ))
         await self.bot.delete_message(ctx.message)
 
-    @commands.command(pass_context=True)
+    @commands.command(pass_context=True, aliases=['description'])
     async def desc(self, ctx: commands.Context, cmd: str = None, input_desc: str = None):
         if cmd:
             if cmd.startswith('<'):
@@ -290,15 +322,14 @@ class Profile:
                                                 'Tu dois fournir une description entre guillemets '
                                                 '(e.g. : "Ma description")')
                 else:
-                    if len(input_desc) > 360:
+                    if len(input_desc) > 150:
                         await self.bot.send_message(ctx.message.channel,
-                                                    'Ta description doit faire maximum 360 caractères.')
+                                                    'Ta description doit faire maximum 150 caractères.')
                     else:
-                        desc = self.format(input_desc)
-                        Person(ctx.message.author.id, self.redis).update('desc', desc)
+                        Person(ctx.message.author.id, self.redis).update('desc', input_desc)
                         await self.bot.send_message(ctx.message.author,
                                                     'Je vois. J\'approuve donc ta demande en t\'assignant cette description : ```diff\n{}\n```'.format(
-                                                        self.format(desc)
+                                                        input_desc
                                                     ))
         else:
             author = ctx.message.author
@@ -310,12 +341,6 @@ class Profile:
                     author.mention,
                     user_desc.decode('utf-8')
                 ))
-        await self.bot.delete_message(ctx.message)
-
-    def format(self, message):
-        output = re.sub('`', '', message)
-        output = re.sub('[_]', '\n', output)
-        return output
 
     @commands.command(pass_context=True)
     async def badge(self, ctx: commands.Context, member):
