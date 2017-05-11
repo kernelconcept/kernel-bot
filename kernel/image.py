@@ -58,7 +58,7 @@ def generate_profile(id: str,
     subtitle = ImageFont.truetype(BASE_DIR + '/templates/font-italic.ttf', 60)
     thanks = ImageFont.truetype(BASE_DIR + '/templates/font.ttf', 78)
     thanks_little = ImageFont.truetype(BASE_DIR + '/templates/font.ttf', 50)
-    desc = ImageFont.truetype(BASE_DIR + '/templates/font.ttf', 40)
+    desc = ImageFont.truetype(BASE_DIR + '/templates/font.ttf', 45)
     draw.text((1150, 110), '{}'.format(profile_name[0].upper()), font=title, fill=(255, 255, 255, 255))
     draw.text((1205, 129), '{}'.format(profile_name[1:].upper()), font=caps_title, fill=(255, 255, 255, 255))
     draw.text((1150, 200), '{}'.format(profile_title), font=subtitle, fill=(100, 100, 100, 255))
