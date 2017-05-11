@@ -42,6 +42,12 @@ def generate_profile(id: str,
         disponibility = Image.open(BASE_DIR + '/templates/disponibility_y.png')
     else:
         disponibility = Image.open(BASE_DIR + '/templates/disponibility.png')
+    if profile_thanks < 10:
+        thanks_x = 55
+    elif profile_thanks < 100:
+        thanks_x = 110
+    else:
+        thanks_x = 165
     top_layer = Image.open(BASE_DIR + '/templates/topLayer.png')
     base.paste(avatar, (0, 0), mask=avatar_mask)
     base.paste(disponibility, (0, 0), mask=disponibility)
@@ -51,13 +57,16 @@ def generate_profile(id: str,
     caps_title = ImageFont.truetype(BASE_DIR + '/templates/font-bold.ttf', 60)
     subtitle = ImageFont.truetype(BASE_DIR + '/templates/font-italic.ttf', 60)
     thanks = ImageFont.truetype(BASE_DIR + '/templates/font.ttf', 78)
-    desc = ImageFont.truetype(BASE_DIR + '/templates/font.ttf', 45)
+    thanks_little = ImageFont.truetype(BASE_DIR + '/templates/font.ttf', 50)
+    desc = ImageFont.truetype(BASE_DIR + '/templates/font.ttf', 40)
     draw.text((1150, 110), '{}'.format(profile_name[0].upper()), font=title, fill=(255, 255, 255, 255))
     draw.text((1205, 129), '{}'.format(profile_name[1:].upper()), font=caps_title, fill=(255, 255, 255, 255))
     draw.text((1150, 200), '{}'.format(profile_title), font=subtitle, fill=(100, 100, 100, 255))
-    draw.text((1090, 970), '{} REMERCIEMENTS'.format(profile_thanks), font=thanks, fill=(246, 78, 52, 255))
+    draw.text((1080, 990), '{}'.format(profile_thanks), font=thanks, fill=(246, 78, 52, 255))
+    draw.text((1090 + thanks_x, 990), 'R'.format(profile_thanks), font=thanks, fill=(246, 78, 52, 255))
+    draw.text((1145 + thanks_x, 1015), 'EMERCIEMENTS'.format(profile_thanks), font=thanks_little, fill=(246, 78, 52, 255))
     description = wrap(profile_desc, width=38)
-    base_y = 350
+    base_y = 300
     for line in description:
         draw.text((1150, base_y), '{}'.format(line), font=desc, fill=(0, 153, 204, 255))
         base_y += 70
