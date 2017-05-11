@@ -35,7 +35,7 @@ def generate_profile(id: str,
                      profile_disp: bool,
                      avatar: str,
                      profile_thanks: int):
-    base = Image.open(BASE_DIR + '/templates/base.png')
+    base = Image.open(BASE_DIR + '/templates/baseWhite.png')
     avatar_mask = Image.open(BASE_DIR + '/templates/avatarMask.png').convert('L')
     avatar_link = generate_avatar(avatar, id)
     avatar = Image.open(avatar_link)
