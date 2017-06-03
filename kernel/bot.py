@@ -1,5 +1,6 @@
 from discord.ext import commands
 from kernel import enrich_channel_name, text
+from kernel.replies import reply
 import discord
 
 
@@ -42,6 +43,10 @@ class KernelBot(commands.Bot):
         print('Online.')
         await self.change_presence(
             game=discord.Game(name=GAME))
+
+    async def on_message(self, message):
+        if not await reply(message, self):
+            await self.process_commands(message)
 
     async def on_member_join(self, member):
         await self.send_message(self.welcome_channel, text.NEW_MEMBER.format(SERVER_NAME, member))
