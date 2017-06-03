@@ -96,4 +96,4 @@ ENV/
 
 # The picture folder shouldn't be included with our repo.
 sources
-pictures
+pictures/*.png
