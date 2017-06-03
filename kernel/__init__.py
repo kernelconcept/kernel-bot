@@ -2,6 +2,13 @@ import discord
 import re
 
 
+def has_admin(server: discord.Server, user: discord.Member, admin_role: str = 'admin') -> bool:
+    for role in user.roles:
+        if role == enrich_role_name(server, admin_role):
+            return True
+    return False
+
+
 def enrich_channel_name(server: discord.Server, channel_name: str) -> discord.Channel:
     for channel in server.channels:
         if channel.name == channel_name:
@@ -23,6 +30,7 @@ def enrich_user_id(server: discord.Server, user: str) -> discord.Member:
         check = user_id or user
         if member.id == check:
             return member
+
 
 def enrich_emoji(server: discord.Server, emoji_name: str) -> discord.Emoji:
     for emoji in server.emojis:
