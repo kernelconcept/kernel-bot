@@ -1,6 +1,5 @@
 from discord.ext import commands
-from kernel import enrich_user_id, enrich_emoji
-from kernel.text import COMMAND_ROLE_NO_ARGS_GIVEN
+from kernel import enrich_user_id, enrich_emoji, text
 import re
 
 CREATOR_ID = '132253217529659393'
@@ -21,45 +20,34 @@ class Commands:
         author = ctx.message.author
         server = ctx.message.server
         if not user_id:
-            await self.bot.send_message(ctx.message.channel,
-                                        'Ton avatar: {0.avatar_url}'.format(author))
+            await self.bot.reply(text.SELF_AVATAR.format(author))
         else:
             member = enrich_user_id(server, user_id)
-            await self.bot.send_message(ctx.message.channel,
-                                        'L\'avatar de {0.mention}: {0.avatar_url}'.format(member))
+            await self.bot.reply(text.USER_AVATAR.format(member))
 
     @commands.command(pass_context=True, aliases=['headshot', 'close', 'expel'])
     async def kill(self, ctx: commands.Context):
         if ctx.message.author.id == CREATOR_ID:
-            await self.bot.send_message(ctx.message.channel,
-                                        '[test] Reçu. Extinction en cours.')
+            await self.bot.reply(text.KILL)
             await self.bot.close()
         else:
-            await self.bot.send_message(ctx.message.channel, 'Tu n\'es pas autorisé à ordonner mon extinction.')
+            await self.bot.reply(text.NO_RIGHTS)
 
-    @commands.command(pass_context=True, aliases=['who', 'quiestu', 'kernelbot'])
-    async def whoareyou(self, ctx: commands.Context):
-        await self.bot.send_message(ctx.message.channel,
-                                    'Je suis le très rare Kernel Bot aux quatres yeux. Je réponds à tout le monde. Je vois tout ceux qui sont ici. Je sais ce que vous faites.')
+    @commands.command(aliases=['who', 'quiestu', 'kernelbot'])
+    async def whoareyou(self):
+        await self.bot.reply(text.WHOAREYOU)
 
-    @commands.command(pass_context=True)
-    async def role(self, ctx: commands.Context, user: str = None):
-        author = ctx.message.author
-        server = ctx.message.server
+    @commands.command()
+    async def role(self, user: str = None):
         if not user:
-            await self.bot.delete_message(ctx.message)
-            await self.bot.send_message(author, COMMAND_ROLE_NO_ARGS_GIVEN.format(author))
+            await self.bot.reply(text.COMMAND_NO_ARGS_GIVEN.format('role'))
         else:
-            member = enrich_user_id(server, user)
-            output = '{0.mention} a les rôles suivants:```\n'.format(member)
+            member = enrich_user_id(self.bot.server, user)
+            output = text.ROLE.format(member)
             for role in member.roles:
                 if not role.name == '@everyone':
                     output += '* {}\n'.format(
                         re.sub('@', '', role.name)
                     )
             output += '```'
-            await self.bot.send_message(ctx.message.channel, output)
-
-    @commands.command(pass_context=True)
-    async def squishy(self, ctx: commands.Context):
-        await self.bot.add_reaction(ctx.message, enrich_emoji(self.bot.server, 'squishy'))
+            await self.bot.reply(output)

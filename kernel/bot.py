@@ -1,19 +1,12 @@
 from discord.ext import commands
-from kernel import enrich_channel_name
-from .replies import reply
+from kernel import enrich_channel_name, text
+from kernel.replies import reply
 import discord
 
-COMMAND_PREFIXES = ['!']
-DESC = """Le bot Discord de Kernel.
-Cool, opérationnel, mais ne fait pas de câlins."""
-COMMAND_NOT_FOUND = "La commande {} n'existe pas. Désolé."
-COMMAND_HAS_NO_SUBCOMMANDS = "La commande {0.name} n'a pas de sous-commandes."
-NEW_MEMBER = "Une nouvelle recrue a rejoint nos rangs. \n\n Bienvenue sur {0}, {1.mention} !"
-MEMBER_LEAVE = "Tristement, {0.mention} a décidé de quitter nos rangs. Nous ne t'oublierons jamais."
-MEMBER_BAN = "Les administrateurs ont fait retentir le marteau ! {0.name} a subi la sentence martiale et nous a quitté."
 
 SERVER_NAME = "Kernel Concept"
 GAME = "réfléchir au sens de la vie"
+COMMAND_PREFIXES = ['!']
 
 
 class KernelBot(commands.Bot):
@@ -25,10 +18,10 @@ class KernelBot(commands.Bot):
     """
     def __init__(self, api_token, test_channel_name: str = 'bot', welcome_channel_name: str = 'salle-commune'):
         super().__init__(COMMAND_PREFIXES,
-                         description=DESC,
+                         description=text.BOT_DESC,
                          pm_help=True,  # Help don't spam, Help uses private messaging !
-                         command_not_found=COMMAND_NOT_FOUND,
-                         command_has_no_subcommands=COMMAND_HAS_NO_SUBCOMMANDS)
+                         command_not_found=text.COMMAND_NOT_FOUND,
+                         command_has_no_subcommands=text.COMMAND_HAS_NO_SUBCOMMANDS)
         self.token = api_token
         self.server_name = SERVER_NAME
         self.test_channel_name = test_channel_name
@@ -51,14 +44,18 @@ class KernelBot(commands.Bot):
         await self.change_presence(
             game=discord.Game(name=GAME))
 
+    async def on_message(self, message):
+        if not await reply(message, self):
+            await self.process_commands(message)
+
     async def on_member_join(self, member):
-        await self.send_message(self.welcome_channel, NEW_MEMBER.format(SERVER_NAME, member))
+        await self.send_message(self.welcome_channel, text.NEW_MEMBER.format(SERVER_NAME, member))
 
     async def on_member_remove(self, member):
-        await self.send_message(self.welcome_channel, MEMBER_LEAVE.format(member))
+        await self.send_message(self.welcome_channel, text.MEMBER_LEAVE.format(member))
 
     async def on_member_ban(self, member):
-        await self.send_message(self.welcome_channel, MEMBER_BAN.format(member))
+        await self.send_message(self.welcome_channel, text.MEMBER_BAN.format(member))
 
     async def send_test(self, message):
         await self.send_message(self.test_channel, message)
