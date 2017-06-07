@@ -7,6 +7,7 @@ import discord
 SERVER_NAME = "Kernel Concept"
 GAME = "réfléchir au sens de la vie"
 COMMAND_PREFIXES = ['!']
+MESSAGE_DELETE_AFTER = 300.00
 
 
 class KernelBot(commands.Bot):

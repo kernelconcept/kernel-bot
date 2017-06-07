@@ -1,5 +1,5 @@
 from discord.ext import commands
-from kernel import enrich_emoji
+from kernel import enrich_emoji, text
 import discord
 
 REPLIES = {
@@ -20,8 +20,10 @@ async def reply(message: discord.Message, bot: commands.Bot) -> bool:
                             "sources/braingame.jpg",
                             content=REPLIES['musicbot/playdeny'].format(message.author.mention))
         return True
-    if "SQUISHY" in message.content.upper():
+    elif "SQUISHY" in message.content.upper():
         await bot.add_reaction(message, enrich_emoji(message.server, 'squishy'))
         return True
+    elif 'INUTILE' in message.content.upper() and 'BOT' in message.content.upper():
+        await bot.send_message(message.channel, text.USELESS)
     else:
         return False

@@ -1,5 +1,15 @@
 import discord
+import time
 import re
+
+
+def fetch_users_from_role(server: discord.Server, role):
+    output = []
+    for member in server.members:
+        for serverrole in member.roles:
+            if serverrole.id == role.id:
+                output.append(member)
+    return output
 
 
 def has_admin(server: discord.Server, user: discord.Member, admin_role: str = 'admin') -> bool:
@@ -15,9 +25,18 @@ def enrich_channel_name(server: discord.Server, channel_name: str) -> discord.Ch
             return channel
 
 
+def enrich_role_id(server: discord.Server, role_id: str) -> discord.Role:
+    if role_id.startswith('<'):
+        role_id = re.sub('[<>@!&]', '', role_id)
+    for role in server.roles:
+        check = role_id
+        if role.id == check:
+            return role
+
+
 def enrich_role_name(server: discord.Server, role_name: str) -> discord.Role:
     for role in server.roles:
-        if role.name == role_name:
+        if role.name.upper() == role_name.upper():
             return role
 
 

@@ -4,6 +4,19 @@ text.py
 Container for text responses.
 """
 
+HUGS = [
+    '(づ｡◕‿‿◕｡)づ',
+    '(੭ु｡╹▿╹｡)੭ु⁾⁾',
+    'c⌒っ╹v╹ )っ',
+    '(つ ͡° ͜ʖ ͡°)つ',
+    'ʕっ•ᴥ•ʔっ',
+    '⊂(◉‿◉)つ',
+    '⊂((・▽・))⊃',
+    '(っ⇀⑃↼)っ',
+    '(.づσ▿σ)づ.',
+    '(づ￣ ³￣)づ',
+        ]
+
 
 BOT_DESC = """Le bot Discord de Kernel.
 Cool, opérationnel, mais ne fait pas de câlins."""
@@ -18,6 +31,7 @@ MEMBER_BAN = "Les administrateurs ont fait retentir le marteau ! {0.name} a subi
 NO_RIGHTS = "tu n'as pas le droit d'utiliser cette commande."
 USER_DOESNT_EXIST = "cet utilisateur n'existe pas (ou je n'ai, du moins, pas réussi à le trouver dans ce channel)."
 COMMAND_NO_ARGS_GIVEN = "tu n'as pas donné de paramètres (`!help {}` pourrait t'aider)."
+USELESS = "Eh attends. COMMENT ÇA INUTILE ?!"
 
 
 # Commands replies
