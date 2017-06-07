@@ -151,6 +151,7 @@ class Profile:
 
     @commands.command(pass_context=True, aliases=['profil', 'carte', 'card'])
     async def profile(self, ctx: commands.Context, member_id: str = None):
+        member = None
         if member_id:
             member = enrich_user_id(self.bot.server, member_id)
         profile = member or ctx.message.author
