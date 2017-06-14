@@ -28,6 +28,7 @@ def generate_avatar(avatar_url, profile_id):
     return BASE_DIR + '/pictures/temp_{}.png'.format(profile_id)
 
 
+# TODO: Implement badges
 def generate_profile(profile: discord.Member,
                      profile_name: str,
                      profile_title: str,

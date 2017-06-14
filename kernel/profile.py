@@ -16,30 +16,81 @@ import re
 sentry = Client('https://62ffbf83e1204334ae60fd85305239f2:c8033d9c0312464f87593d93b7040a11@sentry.io/154891')
 
 
-class Person:
+class RedisMixin:
     """
-    Person class
+    Mixin for Redis classes.
     """
-    def __init__(self, discord_id: str, redis_inst):
-        self.discord_id = discord_id
+    def __init__(self, item_id: str, redis_inst):
+        self.item_id = item_id
         self.redis = redis_inst
-
-        #  Set the redis key to True if profile doesn't exist.
-        self.was_just_created = self.init()
+        self.key = None
 
     @property
     def exists(self) -> bool:
-        return self.redis.get('person/{}'.format(self.discord_id))
+        return bool(self.redis.get('{}/{}'.format(self.key, self.item_id)))
 
     def init(self) -> bool:
         if not self.exists:
-            self.redis.set('person/{}'.format(self.discord_id), True)
+            self.redis.set('{}/{}'.format(self.key, self.item_id), True)
             return True
         return False
 
     def reset(self):
-        for key in self.redis.scan_iter(match='person/{}*'.format(self.discord_id)):
+        for key in self.scan():
             self.redis.delete(key)
+
+    def fetch(self, key) -> Union[str, int]:
+        value = self.redis.get('{}/{}/{}'.format(
+            self.key,
+            self.item_id,
+            key
+        ))
+        if value:
+            return value.decode('utf-8')
+
+    def scan(self, key=None):
+        return [k for k in self.redis.scan_iter(match='{}/{}{}*'.format(
+            self.key,
+            self.item_id,
+            '/{}'.format(key) or ''
+        ))] or None
+
+    def update(self, key, value):
+        self.redis.set('{}/{}/{}'.format(
+            self.key,
+            self.item_id,
+            key
+        ), value)
+
+
+class Badge(RedisMixin):
+    """
+    Badge class
+    """
+    def __init__(self, item_id: str, redis_inst):
+        super().__init__(item_id, redis_inst)
+
+        self.key = 'badge'
+
+    @property
+    def name(self) -> str:
+        return self.fetch('name')
+
+    @property
+    def desc(self):
+        return self.fetch('desc')
+
+
+class Person(RedisMixin):
+    """
+    Person class
+    """
+    def __init__(self, item_id: str, redis_inst):
+        super().__init__(item_id, redis_inst)
+
+        self.key = 'person'
+        #  Set the redis key to True if profile doesn't exist.
+        self.was_just_created = self.init()
 
     @property
     def title(self) -> str:
@@ -67,6 +118,11 @@ class Person:
         else:
             return False
 
+    @property
+    def badges(self) -> List[str]:
+        if self.scan('badges'):
+            return [str(b.decode('utf-8')).split('/')[-1] for b in self.scan('badges')]
+
     def set_availability(self, cmd) -> bool:
         if cmd == 'oui':
             self.update('availability', True)
@@ -81,19 +137,6 @@ class Person:
         thanks = self.thanks_count or 0
         self.update('thanks', thanks + 1)
         return self.thanks_count - 1
-
-    def fetch(self, key) -> Union[str, int]:
-        value = self.redis.get('person/{}/{}'.format(
-            self.discord_id,
-            key
-        ))
-        return value
-
-    def update(self, key, value):
-        self.redis.set('person/{}/{}'.format(
-            self.discord_id,
-            key
-        ), value)
 
 
 class Profile:
@@ -323,6 +366,32 @@ class Profile:
                 await self.bot.reply(text.HAS_SELF_DESC.format(
                     user_desc.decode('utf-8')), delete_after=MESSAGE_DELETE_AFTER)
 
-    @commands.command(pass_context=True)
-    async def badge(self, ctx: commands.Context, member):
-        pass
+    @commands.command()
+    async def badge(self, member):
+        user = enrich_user_id(self.bot.server, member)
+        if user:
+            if Person(user.id, self.redis).badges:
+                badges = [Badge(b, self.redis) for b in Person(user.id, self.redis).badges]
+                output = '```\n'
+                for badge in badges:
+                    output += '- {}: {}\n{}\n\n'.format(
+                        badge.item_id,
+                        badge.name,
+                        badge.desc
+                    )
+                output += '```'
+                await self.bot.reply('{} dispose des badges suivants: \n\n{}'.format(user.name, output))
+            else:
+                await self.bot.reply('{} n\'a pas de badges.'.format(user.name))
+        elif member.startswith('<@&'):
+            await self.bot.reply('cette commande ne fonctionne pas pour les rôles.')
+        else:
+            await self.bot.reply('cette personne n\'existe pas dans ce serveur.')
+
+    @commands.command()
+    async def see(self, badge_id):
+        badge = Badge(badge_id, self.redis)
+        if badge.exists:
+            await self.bot.reply('{}:\n\n{}'.format(badge.name, badge.desc))
+        else:
+            await self.bot.reply('ce badge n\'existe pas (ou tu n\'as simplement pas donné un ID de badge).')
