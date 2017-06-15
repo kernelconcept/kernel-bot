@@ -16,30 +16,81 @@ import re
 sentry = Client('https://62ffbf83e1204334ae60fd85305239f2:c8033d9c0312464f87593d93b7040a11@sentry.io/154891')
 
 
-class Person:
+class RedisMixin:
     """
-    Person class
+    Mixin for Redis classes.
     """
-    def __init__(self, discord_id: str, redis_inst):
-        self.discord_id = discord_id
+    def __init__(self, item_id: str, redis_inst):
+        self.item_id = item_id
         self.redis = redis_inst
-
-        #  Set the redis key to True if profile doesn't exist.
-        self.was_just_created = self.init()
+        self.key = None
 
     @property
     def exists(self) -> bool:
-        return self.redis.get('person/{}'.format(self.discord_id))
+        return bool(self.redis.get('{}/{}'.format(self.key, self.item_id)))
 
     def init(self) -> bool:
         if not self.exists:
-            self.redis.set('person/{}'.format(self.discord_id), True)
+            self.redis.set('{}/{}'.format(self.key, self.item_id), True)
             return True
         return False
 
     def reset(self):
-        for key in self.redis.scan_iter(match='person/{}*'.format(self.discord_id)):
+        for key in self.scan():
             self.redis.delete(key)
+
+    def fetch(self, key) -> Union[str, int]:
+        value = self.redis.get('{}/{}/{}'.format(
+            self.key,
+            self.item_id,
+            key
+        ))
+        if value:
+            return value.decode('utf-8')
+
+    def scan(self, key=None):
+        return [k for k in self.redis.scan_iter(match='{}/{}{}*'.format(
+            self.key,
+            self.item_id,
+            '/{}'.format(key) or ''
+        ))] or None
+
+    def update(self, key, value):
+        self.redis.set('{}/{}/{}'.format(
+            self.key,
+            self.item_id,
+            key
+        ), value)
+
+
+class Badge(RedisMixin):
+    """
+    Badge class
+    """
+    def __init__(self, item_id: str, redis_inst):
+        super().__init__(item_id, redis_inst)
+
+        self.key = 'badge'
+
+    @property
+    def name(self) -> str:
+        return self.fetch('name')
+
+    @property
+    def desc(self):
+        return self.fetch('desc')
+
+
+class Person(RedisMixin):
+    """
+    Person class
+    """
+    def __init__(self, item_id: str, redis_inst):
+        super().__init__(item_id, redis_inst)
+
+        self.key = 'person'
+        #  Set the redis key to True if profile doesn't exist.
+        self.was_just_created = self.init()
 
     @property
     def title(self) -> str:
@@ -59,13 +110,17 @@ class Person:
     def available(self) -> bool:
         r = self.fetch('availability')
         if r:
-            r = r.decode('utf-8')
             if 'False' in r:
                 return False
             elif 'True' in r:
                 return True
         else:
             return False
+
+    @property
+    def badges(self) -> List[str]:
+        if self.scan('badges'):
+            return [str(b.decode('utf-8')).split('/')[-1] for b in self.scan('badges')]
 
     def set_availability(self, cmd) -> bool:
         if cmd == 'oui':
@@ -81,19 +136,6 @@ class Person:
         thanks = self.thanks_count or 0
         self.update('thanks', thanks + 1)
         return self.thanks_count - 1
-
-    def fetch(self, key) -> Union[str, int]:
-        value = self.redis.get('person/{}/{}'.format(
-            self.discord_id,
-            key
-        ))
-        return value
-
-    def update(self, key, value):
-        self.redis.set('person/{}/{}'.format(
-            self.discord_id,
-            key
-        ), value)
 
 
 class Profile:
@@ -155,16 +197,14 @@ class Profile:
         if member_id:
             member = enrich_user_id(self.bot.server, member_id)
         profile = member or ctx.message.author
-        profile_title = Person(profile.id, self.redis).title
-        profile_thanks = Person(profile.id, self.redis).thanks_count
-        profile_desc = Person(profile.id, self.redis).desc
-        profile_disp = Person(profile.id, self.redis).available
-        if profile_title:
-            profile_title = profile_title.decode('utf-8')
+        redis_profile = Person(profile.id, self.redis)
+        profile_title = redis_profile.title
+        profile_thanks = redis_profile.thanks_count
+        profile_desc = redis_profile.desc
+        profile_disp = redis_profile.available
+        profile_badges = redis_profile.badges
         if profile_thanks:
             profile_thanks = int(profile_thanks)
-        if profile_desc:
-            profile_desc = profile_desc.decode('utf-8')
         picture = generate_profile(
             profile,
             profile.name,
@@ -173,6 +213,7 @@ class Profile:
             profile_disp,
             profile.avatar_url,
             profile_thanks or 0,
+            profile_badges or None,
         )
         if picture:
             await self.bot.send_file(
@@ -207,7 +248,7 @@ class Profile:
             person = Person(ctx.message.author.id, self.redis)
             thanks_count = person.fetch('thanks')
             if thanks_count:
-                thanks_count = int(thanks_count.decode('utf-8'))
+                thanks_count = int(thanks_count)
                 await self.bot.reply(text.THANKS.format(thanks_count), delete_after=MESSAGE_DELETE_AFTER)
             else:
                 await self.bot.reply(text.THANKS_NONE, delete_after=MESSAGE_DELETE_AFTER)
@@ -269,7 +310,7 @@ class Profile:
                 else:
                     await self.bot.reply(text.HAS_NICK.format(
                         enriched_user.mention,
-                        user_title.decode('utf-8')
+                        user_title
                     ), delete_after=MESSAGE_DELETE_AFTER)
             if cmd == 'edit':
                 if not input_title:
@@ -289,7 +330,7 @@ class Profile:
             else:
                 await self.bot.reply(text.HAS_SELF_NICK.format(
                     author.mention,
-                    user_title.decode('utf-8')
+                    user_title
                 ), delete_after=MESSAGE_DELETE_AFTER)
 
     @commands.command(pass_context=True, aliases=['description'])
@@ -303,7 +344,7 @@ class Profile:
                 else:
                     await self.bot.reply(text.HAS_DESC.format(
                         enriched_user.mention,
-                        user_desc.decode('utf-8')
+                        user_desc
                     ), delete_after=MESSAGE_DELETE_AFTER)
             if cmd == 'edit':
                 if not input_desc:
@@ -321,8 +362,34 @@ class Profile:
                 await self.bot.reply(text.NO_SELF_DESC, delete_after=MESSAGE_DELETE_AFTER)
             else:
                 await self.bot.reply(text.HAS_SELF_DESC.format(
-                    user_desc.decode('utf-8')), delete_after=MESSAGE_DELETE_AFTER)
+                    user_desc), delete_after=MESSAGE_DELETE_AFTER)
 
-    @commands.command(pass_context=True)
-    async def badge(self, ctx: commands.Context, member):
-        pass
+    @commands.command()
+    async def badge(self, member):
+        user = enrich_user_id(self.bot.server, member)
+        if user:
+            if Person(user.id, self.redis).badges:
+                badges = [Badge(b, self.redis) for b in Person(user.id, self.redis).badges]
+                output = '```\n'
+                for badge in badges:
+                    output += '- {}: {}\n{}\n\n'.format(
+                        badge.item_id,
+                        badge.name,
+                        badge.desc
+                    )
+                output += '```'
+                await self.bot.reply(text.HAS_BADGES.format(user.name, output))
+            else:
+                await self.bot.reply(text.NO_BADGES.format(user.name))
+        elif member.startswith('<@&'):
+            await self.bot.reply(text.COMMAND_NO_ROLES)
+        else:
+            await self.bot.reply(text.COMMAND_USER_NOT_FOUND)
+
+    @commands.command()
+    async def badgesee(self, badge_id):
+        badge = Badge(badge_id, self.redis)
+        if badge.exists:
+            await self.bot.reply('{}:\n\n{}'.format(badge.name, badge.desc))
+        else:
+            await self.bot.reply(text.BADGE_NOT_FOUND)

@@ -49,6 +49,10 @@ class KernelBot(commands.Bot):
         if not await reply(message, self):
             await self.process_commands(message)
 
+    async def on_message_edit(self, before, after):
+        if not await reply(after, self):
+            await self.process_commands(after)
+
     async def on_member_join(self, member):
         await self.send_message(self.welcome_channel, text.NEW_MEMBER.format(SERVER_NAME, member))
 

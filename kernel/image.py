@@ -1,6 +1,7 @@
 from PIL import Image, ImageDraw, ImageFont
 from urllib.request import Request, urlopen
 from textwrap import wrap
+from typing import List, Union
 import discord
 import os
 
@@ -28,13 +29,15 @@ def generate_avatar(avatar_url, profile_id):
     return BASE_DIR + '/pictures/temp_{}.png'.format(profile_id)
 
 
+# TODO: Implement badges
 def generate_profile(profile: discord.Member,
                      profile_name: str,
                      profile_title: str,
                      profile_desc: str,
                      profile_disp: bool,
                      avatar: str,
-                     profile_thanks: int):
+                     profile_thanks: int,
+                     profile_badges: Union[List[int], None]):
     base = Image.open(BASE_DIR + '/templates/baseWhite.png')
     avatar_mask = Image.open(BASE_DIR + '/templates/avatarMask.png').convert('L')
     avatar_link = generate_avatar(avatar, profile.id)
@@ -69,6 +72,19 @@ def generate_profile(profile: discord.Member,
     draw.text((1145 + thanks_x, 1015), 'EMERCIEMENTS'.format(profile_thanks), font=thanks_little,
               fill=(246, 78, 52, 255))
     description = wrap(profile_desc, width=38)
+    if profile_badges:
+        for i, v in enumerate(profile_badges):
+            badge = Image.open(BASE_DIR + '/badges/{}.png'.format(v))
+            if badge:
+                badge.thumbnail((256, 256), Image.ANTIALIAS)
+                if i == 0:
+                    base.paste(badge, (1100, 700), mask=badge)
+                elif i == 1:
+                    base.paste(badge, (1400, 700), mask=badge)
+                elif i == 2:
+                    base.paste(badge, (1700, 307), mask=badge)
+                else:
+                    pass
     base_y = 300
     for line in description:
         draw.text((1150, base_y), '{}'.format(line), font=desc, fill=(0, 153, 204, 255))
