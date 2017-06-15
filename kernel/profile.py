@@ -110,7 +110,6 @@ class Person(RedisMixin):
     def available(self) -> bool:
         r = self.fetch('availability')
         if r:
-            r = r.decode('utf-8')
             if 'False' in r:
                 return False
             elif 'True' in r:
@@ -198,16 +197,14 @@ class Profile:
         if member_id:
             member = enrich_user_id(self.bot.server, member_id)
         profile = member or ctx.message.author
-        profile_title = Person(profile.id, self.redis).title
-        profile_thanks = Person(profile.id, self.redis).thanks_count
-        profile_desc = Person(profile.id, self.redis).desc
-        profile_disp = Person(profile.id, self.redis).available
-        if profile_title:
-            profile_title = profile_title.decode('utf-8')
+        redis_profile = Person(profile.id, self.redis)
+        profile_title = redis_profile.title
+        profile_thanks = redis_profile.thanks_count
+        profile_desc = redis_profile.desc
+        profile_disp = redis_profile.available
+        profile_badges = redis_profile.badges
         if profile_thanks:
             profile_thanks = int(profile_thanks)
-        if profile_desc:
-            profile_desc = profile_desc.decode('utf-8')
         picture = generate_profile(
             profile,
             profile.name,
@@ -216,6 +213,7 @@ class Profile:
             profile_disp,
             profile.avatar_url,
             profile_thanks or 0,
+            profile_badges or None,
         )
         if picture:
             await self.bot.send_file(
