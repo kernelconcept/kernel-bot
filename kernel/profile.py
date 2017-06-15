@@ -248,7 +248,7 @@ class Profile:
             person = Person(ctx.message.author.id, self.redis)
             thanks_count = person.fetch('thanks')
             if thanks_count:
-                thanks_count = int(thanks_count.decode('utf-8'))
+                thanks_count = int(thanks_count)
                 await self.bot.reply(text.THANKS.format(thanks_count), delete_after=MESSAGE_DELETE_AFTER)
             else:
                 await self.bot.reply(text.THANKS_NONE, delete_after=MESSAGE_DELETE_AFTER)
@@ -310,7 +310,7 @@ class Profile:
                 else:
                     await self.bot.reply(text.HAS_NICK.format(
                         enriched_user.mention,
-                        user_title.decode('utf-8')
+                        user_title
                     ), delete_after=MESSAGE_DELETE_AFTER)
             if cmd == 'edit':
                 if not input_title:
@@ -330,7 +330,7 @@ class Profile:
             else:
                 await self.bot.reply(text.HAS_SELF_NICK.format(
                     author.mention,
-                    user_title.decode('utf-8')
+                    user_title
                 ), delete_after=MESSAGE_DELETE_AFTER)
 
     @commands.command(pass_context=True, aliases=['description'])
@@ -344,7 +344,7 @@ class Profile:
                 else:
                     await self.bot.reply(text.HAS_DESC.format(
                         enriched_user.mention,
-                        user_desc.decode('utf-8')
+                        user_desc
                     ), delete_after=MESSAGE_DELETE_AFTER)
             if cmd == 'edit':
                 if not input_desc:
@@ -362,7 +362,7 @@ class Profile:
                 await self.bot.reply(text.NO_SELF_DESC, delete_after=MESSAGE_DELETE_AFTER)
             else:
                 await self.bot.reply(text.HAS_SELF_DESC.format(
-                    user_desc.decode('utf-8')), delete_after=MESSAGE_DELETE_AFTER)
+                    user_desc), delete_after=MESSAGE_DELETE_AFTER)
 
     @commands.command()
     async def badge(self, member):
@@ -378,18 +378,18 @@ class Profile:
                         badge.desc
                     )
                 output += '```'
-                await self.bot.reply('{} dispose des badges suivants: \n\n{}'.format(user.name, output))
+                await self.bot.reply(text.HAS_BADGES.format(user.name, output))
             else:
-                await self.bot.reply('{} n\'a pas de badges.'.format(user.name))
+                await self.bot.reply(text.NO_BADGES.format(user.name))
         elif member.startswith('<@&'):
-            await self.bot.reply('cette commande ne fonctionne pas pour les rôles.')
+            await self.bot.reply(text.COMMAND_NO_ROLES)
         else:
-            await self.bot.reply('cette personne n\'existe pas dans ce serveur.')
+            await self.bot.reply(text.COMMAND_USER_NOT_FOUND)
 
     @commands.command()
-    async def see(self, badge_id):
+    async def badgesee(self, badge_id):
         badge = Badge(badge_id, self.redis)
         if badge.exists:
             await self.bot.reply('{}:\n\n{}'.format(badge.name, badge.desc))
         else:
-            await self.bot.reply('ce badge n\'existe pas (ou tu n\'as simplement pas donné un ID de badge).')
+            await self.bot.reply(text.BADGE_NOT_FOUND)

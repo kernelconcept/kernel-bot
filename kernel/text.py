@@ -31,6 +31,8 @@ MEMBER_BAN = "Les administrateurs ont fait retentir le marteau ! {0.name} a subi
 NO_RIGHTS = "tu n'as pas le droit d'utiliser cette commande."
 USER_DOESNT_EXIST = "cet utilisateur n'existe pas (ou je n'ai, du moins, pas réussi à le trouver dans ce channel)."
 COMMAND_NO_ARGS_GIVEN = "tu n'as pas donné de paramètres (`!help {}` pourrait t'aider)."
+COMMAND_NO_ROLES = "cette commande ne fonctionne pas pour les rôles."
+COMMAND_USER_NOT_FOUND = "cette personne n\'existe pas dans ce serveur."
 USELESS = "Eh attends. COMMENT ÇA INUTILE ?!"
 
 
@@ -97,3 +99,9 @@ NO_SELF_DESC = "tu n'as pas de description."
 UPDATED_DESC = "voici ta nouvelle description : ```diff\n{}\n```"
 TOO_LONG_DESC = "ta description ne doit pas dépasser 150 caractères."
 USAGE_DESC = "tu dois fournir une description entre guillemets (e.g. : `!desc edit \"Ma description\"`)"
+
+# `badge` command
+
+HAS_BADGES = "{} dispose des badges suivants: \n\n{}"
+NO_BADGES = "{} n\'a pas de badges."
+BADGE_NOT_FOUND = "ce badge n\'existe pas (ou tu n\'as simplement pas donné un ID de badge)."
