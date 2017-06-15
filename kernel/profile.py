@@ -25,6 +25,9 @@ class RedisMixin:
         self.redis = redis_inst
         self.key = None
 
+        #  Set the redis key to True if profile doesn't exist.
+        self.was_just_created = self.init()
+
     @property
     def exists(self) -> bool:
         return bool(self.redis.get('{}/{}'.format(self.key, self.item_id)))
@@ -89,8 +92,6 @@ class Person(RedisMixin):
         super().__init__(item_id, redis_inst)
 
         self.key = 'person'
-        #  Set the redis key to True if profile doesn't exist.
-        self.was_just_created = self.init()
 
     @property
     def title(self) -> str:
@@ -393,3 +394,21 @@ class Profile:
             await self.bot.reply('{}:\n\n{}'.format(badge.name, badge.desc))
         else:
             await self.bot.reply(text.BADGE_NOT_FOUND)
+
+    @commands.command(pass_context=True)
+    async def badgeedit(self, ctx: commands.Context, badge_id, key, value):
+        if ctx.message.author.id == '132253217529659393':
+            badge = Badge(badge_id, self.redis)
+            badge.update(key, value)
+            await self.bot.reply('la valeur est mise à jour.')
+
+    @commands.command(pass_context=True)
+    async def badgegrant(self, ctx: commands.Context, member_id, badge_id):
+        member = enrich_user_id(self.bot.server, member_id)
+
+        if ctx.message.author.id == '132253217529659393':
+            member_redis = Person(member.id, self.redis)
+            badge = Badge(badge_id, self.redis)
+            if badge.exists:
+                member_redis.update('badges/{}'.format(badge_id), True)
+                await self.bot.reply('{} a maintenant le badge de {}.'.format(member.mention, badge.name))
