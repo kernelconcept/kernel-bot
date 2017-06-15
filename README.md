@@ -1,6 +1,8 @@
 # Kernel Bot
 Bot pour Kernel
 
+Actual version: First stable version !
+
 ## Instructions
 * Made for Python 3.6.
 * Deps: discord-py
