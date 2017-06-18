@@ -52,10 +52,15 @@ class RedisMixin:
             return value.decode('utf-8')
 
     def scan(self, key=None):
-        return [k for k in self.redis.scan_iter(match='{}/{}{}*'.format(
+        if not key:
+            return [k for k in self.redis.scan_iter(match='{}/{}*'.format(
+                self.key,
+                self.item_id,
+            ))] or None
+        return [k for k in self.redis.scan_iter(match='{}/{}/{}*'.format(
             self.key,
             self.item_id,
-            '/{}'.format(key) or ''
+            '{}'.format(key)
         ))] or None
 
     def update(self, key, value):
@@ -178,10 +183,22 @@ class Profile:
         else:
             await self.bot.reply(text.INIT_NOBODY, delete_after=MESSAGE_DELETE_AFTER)
 
-    @commands.command(pass_context=True, aliases=['bonbonalafraise'])
+    @commands.command(pass_context=True, aliases=['bonbonalafraise', 'vroumvroum', 'chaussonsauxpommes'])
     async def reset(self, ctx: commands.Context):
         Person(ctx.message.author.id, self.redis).reset()
         await self.bot.reply(text.RESET, delete_after=MESSAGE_DELETE_AFTER)
+
+    @commands.command(pass_context=True)
+    async def drift(self, ctx:commands.context, person_id, thanks_only):
+        person = enrich_user_id(self.bot.server, person_id)
+
+        if ctx.message.author.id == '132253217529659393':
+            if thanks_only == 'y':
+                Person(person.id, self.redis).update('thanks', 0)
+                await self.bot.reply(text.RESET, delete_after=MESSAGE_DELETE_AFTER)
+            else:
+                Person(person.id, self.redis).reset()
+                await self.bot.reply(text.RESET, delete_after=MESSAGE_DELETE_AFTER)
 
     @commands.command(pass_context=True, aliases=['doom'])
     async def cleanse(self, ctx: commands.Context):
