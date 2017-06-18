@@ -205,6 +205,7 @@ class Profile:
         person = enrich_user_id(self.bot.server, person_id)
 
         if ctx.message.author.id == '132253217529659393':
+            Person(person.id, self.redis).update('turbo', True)
             Person(person.id, self.redis).update('thanks', 99)
             Person(person.id, self.redis).update('title', 'TURBOCHARGED DUDE')
             Person(person.id, self.redis).update('desc', 'I\'VE JUST BEEN TURBOCHARGED AND IT FEELS GREAT !')
@@ -231,6 +232,7 @@ class Profile:
         profile_desc = redis_profile.desc
         profile_disp = redis_profile.available
         profile_badges = redis_profile.badges
+        turbo = redis_profile.fetch('turbo')
         if profile_thanks:
             profile_thanks = int(profile_thanks)
         picture = generate_profile(
@@ -242,6 +244,7 @@ class Profile:
             profile.avatar_url,
             profile_thanks or 0,
             profile_badges or None,
+            turbo
         )
         if picture:
             await self.bot.send_file(
