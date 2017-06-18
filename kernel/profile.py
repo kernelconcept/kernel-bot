@@ -330,7 +330,7 @@ class Profile:
                         enriched_user.mention,
                         user_title
                     ), delete_after=MESSAGE_DELETE_AFTER)
-            if cmd == 'edit':
+            if cmd == 'edit' or cmd== 'set':
                 if not input_title:
                     await self.bot.reply(text.USAGE_NICK, delete_after=MESSAGE_DELETE_AFTER)
                 else:
@@ -364,7 +364,7 @@ class Profile:
                         enriched_user.mention,
                         user_desc
                     ), delete_after=MESSAGE_DELETE_AFTER)
-            if cmd == 'edit':
+            if cmd == 'edit' or cmd == 'set':
                 if not input_desc:
                     await self.bot.reply(text.USAGE_DESC, delete_after=MESSAGE_DELETE_AFTER)
                 else:
