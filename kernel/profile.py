@@ -200,6 +200,16 @@ class Profile:
                 Person(person.id, self.redis).reset()
                 await self.bot.reply(text.RESET, delete_after=MESSAGE_DELETE_AFTER)
 
+    @commands.command(pass_context=True)
+    async def turbocharge(self, ctx: commands.context, person_id):
+        person = enrich_user_id(self.bot.server, person_id)
+
+        if ctx.message.author.id == '132253217529659393':
+            Person(person.id, self.redis).update('thanks', 99)
+            Person(person.id, self.redis).update('title', 'TURBOCHARGED DUDE')
+            Person(person.id, self.redis).update('desc', 'I\'VE JUST BEEN TURBOCHARGED AND IT FEELS GREAT !')
+            await self.bot.reply('TU-TU-TU-TURBOCHARGED !', delete_after=MESSAGE_DELETE_AFTER)
+
     @commands.command(pass_context=True, aliases=['doom'])
     async def cleanse(self, ctx: commands.Context):
         if has_admin(self.bot.server, ctx.message.author):
