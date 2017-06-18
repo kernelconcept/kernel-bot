@@ -16,14 +16,17 @@ HEADERS = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KH
            'Connection': 'keep-alive'}
 
 
-def generate_avatar(avatar_url, profile_id):
+def generate_avatar(avatar_url, profile_id, turbo):
     base = Image.open(BASE_DIR + '/templates/base.png')
-    r = Request(avatar_url, headers=HEADERS)
-    content = urlopen(r).read()
-    with open(BASE_DIR + '/pictures/treating.png', mode='wb+') as f:
-        f.write(content)
-        f.close()
-    avatar = Image.open(BASE_DIR + '/pictures/treating.png').resize((1148, 1148))
+    if turbo == 'True':
+        avatar = Image.open(BASE_DIR + '/templates/TURBOCHARGE.png').resize((1148,1148))
+    else:
+        r = Request(avatar_url, headers=HEADERS)
+        content = urlopen(r).read()
+        with open(BASE_DIR + '/pictures/treating.png', mode='wb+') as f:
+            f.write(content)
+            f.close()
+        avatar = Image.open(BASE_DIR + '/pictures/treating.png').resize((1148, 1148))
     base.paste(avatar, (0, 0))
     base.save(BASE_DIR + '/pictures/temp_{}.png'.format(profile_id))
     return BASE_DIR + '/pictures/temp_{}.png'.format(profile_id)
@@ -41,11 +44,8 @@ def generate_profile(profile: discord.Member,
                      turbo):
     base = Image.open(BASE_DIR + '/templates/baseWhite.png')
     avatar_mask = Image.open(BASE_DIR + '/templates/avatarMask.png').convert('L')
-    if turbo == 'True':
-        avatar = Image.open('/templates/TURBOCHARGE.png')
-    else:
-        avatar_link = generate_avatar(avatar, profile.id)
-        avatar = Image.open(avatar_link)
+    avatar_link = generate_avatar(avatar, profile.id, turbo)
+    avatar = Image.open(avatar_link)
 
     if profile_disp:
         disponibility = Image.open(BASE_DIR + '/templates/disponibility_y.png')
