@@ -15,5 +15,5 @@ if __name__ == '__main__':
         prompt_token()
     token = open('.token', 'r').read()
     db = load()
-    bot = KernelBot(db, api_token=token)
+    bot = KernelBot(token, db)
     bot.run()
