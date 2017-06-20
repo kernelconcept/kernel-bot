@@ -1,21 +1,50 @@
 from discord.ext import commands
-from kernel import enrich_user_id, enrich_emoji, text
+
+from kernel import enrich_user_id, enrich_emoji, text, bot
 from kernel.bot import MESSAGE_DELETE_AFTER
+from kernel.replies import reply
+from kernel.cogs import Cog
+
+import discord
 import random
 import re
 
 CREATOR_ID = '132253217529659393'
 
 
-class Commands:
+class ListenersCog(Cog):
+    async def on_ready(self):
+        print('Online.')
+        await self.bot.change_presence(
+            game=discord.Game(name=bot.GAME))
+
+    async def on_message(self, message):
+        if not await reply(message, self.bot):
+            await self.bot.process_commands(message)
+
+    async def on_message_edit(self, before, after):
+        if not await reply(after, self.bot):
+            await self.bot.process_commands(after)
+
+    async def on_member_join(self, member):
+        await self.bot.send_message(self.bot.welcome_channel, text.NEW_MEMBER.format(bot.SERVER_NAME, member))
+
+    async def on_member_remove(self, member):
+        await self.bot.send_message(self.bot.welcome_channel, text.MEMBER_LEAVE.format(member))
+
+    async def on_member_ban(self, member):
+        await self.bot.send_message(self.bot.welcome_channel, text.MEMBER_BAN.format(member))
+
+    async def send_test(self, message):
+        await self.bot.send_message(self.bot.test_channel, message)
+
+
+class CommandsCog(Cog):
     """
     General Commands cog.
 
     This class contains the commands of the bot.
     """
-    def __init__(self,
-                 bot: commands.Bot):
-        self.bot = bot
 
     @commands.command(pass_context=True)
     async def avatar(self, ctx: commands.Context, user_id: str = None):
@@ -61,7 +90,11 @@ class Commands:
         if to_hug.id == ctx.message.author.id:
             await self.bot.reply('J\'ai sincèrement pitié de toi.')
         elif 'Kernel Bot' in to_hug.name:
-            await self.bot.send_message(ctx.message.channel, '{} s\'exhibe contre du métal froid (j\'suis un bot, tu t\'attendais à quoi eh ?).'.format(ctx.message.author.mention))
+            await self.bot.send_message(ctx.message.channel, '{} s\'exhibe contre du métal froid (j\'suis un bot,'
+                                                             'tu t\'attendais à quoi eh ?).'.format(
+                ctx.message.author.mention
+            ))
+            #  TODO: Fix the upper statement (it's REALLY ugly).
         else:
             emoji = random.choice(text.HUGS)
             await self.bot.send_message(ctx.message.channel, '{} {} {}'.format(

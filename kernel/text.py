@@ -26,7 +26,6 @@ NEW_MEMBER = "Une nouvelle recrue a rejoint nos rangs. \n\n Bienvenue sur {0}, {
 MEMBER_LEAVE = "Tristement, {0.mention} a décidé de quitter nos rangs. Nous ne t'oublierons jamais."
 MEMBER_BAN = "Les administrateurs ont fait retentir le marteau ! {0.name} a subi la sentence martiale et nous a quitté."
 
-
 # General replies
 NO_RIGHTS = "tu n'as pas le droit d'utiliser cette commande."
 USER_DOESNT_EXIST = "cet utilisateur n'existe pas (ou je n'ai, du moins, pas réussi à le trouver dans ce channel)."

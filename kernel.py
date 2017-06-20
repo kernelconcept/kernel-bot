@@ -1,6 +1,6 @@
 from os import path
-from kernel.commands import Commands
-from kernel.profile import Profile
+
+from kernel.db import load
 from kernel.bot import KernelBot
 
 
@@ -14,11 +14,6 @@ if __name__ == '__main__':
     if not path.isfile('.token'):
         prompt_token()
     token = open('.token', 'r').read()
-    bot = KernelBot(api_token=token)
-    bot.add_cog(
-        Commands(bot)
-    )
-    bot.add_cog(
-        Profile(bot)
-    )
+    db = load()
+    bot = KernelBot(db, api_token=token)
     bot.run()
