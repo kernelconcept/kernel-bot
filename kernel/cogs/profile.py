@@ -4,8 +4,7 @@ from typing import List, Union
 
 from discord.ext import commands
 
-from kernel import text, enrich_user_id, has_admin, fetch_users_from_role, enrich_role_id, enrich_role_name
-from kernel.bot import MESSAGE_DELETE_AFTER
+from kernel import text, enrich_user_id, has_admin, fetch_users_from_role, enrich_role_id, enrich_role_name, bot
 from kernel.image import generate_profile
 from kernel.cogs import Cog
 from kernel import db
@@ -106,15 +105,15 @@ class ProfileCog(Cog):
                 count += 1
         if count:
             if count == 1:
-                await self.bot.reply(text.INIT_ONE, delete_after=MESSAGE_DELETE_AFTER)
-            await self.bot.reply(text.INIT_MULTIPLE.format(count), delete_after=MESSAGE_DELETE_AFTER)
+                await self.bot.reply(text.INIT_ONE, delete_after=bot.MESSAGE_DELETE_AFTER)
+            await self.bot.reply(text.INIT_MULTIPLE.format(count), delete_after=bot.MESSAGE_DELETE_AFTER)
         else:
-            await self.bot.reply(text.INIT_NOBODY, delete_after=MESSAGE_DELETE_AFTER)
+            await self.bot.reply(text.INIT_NOBODY, delete_after=bot.MESSAGE_DELETE_AFTER)
 
     @commands.command(pass_context=True, aliases=['bonbonalafraise', 'vroumvroum', 'chaussonsauxpommes'])
     async def reset(self, ctx: commands.Context):
         Person(ctx.message.author.id, self.bot.redis).reset()
-        await self.bot.reply(text.RESET, delete_after=MESSAGE_DELETE_AFTER)
+        await self.bot.reply(text.RESET, delete_after=bot.MESSAGE_DELETE_AFTER)
 
     @commands.command(pass_context=True)
     async def drift(self, ctx:commands.context, person_id, thanks_only):
@@ -123,10 +122,10 @@ class ProfileCog(Cog):
         if ctx.message.author.id == '132253217529659393':
             if thanks_only == 'y':
                 Person(person.id, self.bot.redis).update('thanks', 0)
-                await self.bot.reply(text.RESET, delete_after=MESSAGE_DELETE_AFTER)
+                await self.bot.reply(text.RESET, delete_after=bot.MESSAGE_DELETE_AFTER)
             else:
                 Person(person.id, self.bot.redis).reset()
-                await self.bot.reply(text.RESET, delete_after=MESSAGE_DELETE_AFTER)
+                await self.bot.reply(text.RESET, delete_after=bot.MESSAGE_DELETE_AFTER)
 
     @commands.command(pass_context=True)
     async def turbocharge(self, ctx: commands.context, person_id):
@@ -138,16 +137,16 @@ class ProfileCog(Cog):
             person.update('thanks', 99)
             person.update('title', 'TURBOCHARGED DUDE')
             person.update('desc', 'I\'VE JUST BEEN TURBOCHARGED AND IT FEELS GREAT !')
-            await self.bot.reply('TU-TU-TU-TURBOCHARGED !', delete_after=MESSAGE_DELETE_AFTER)
+            await self.bot.reply('TU-TU-TU-TURBOCHARGED !', delete_after=bot.MESSAGE_DELETE_AFTER)
 
     @commands.command(pass_context=True, aliases=['doom'])
     async def cleanse(self, ctx: commands.Context):
         if has_admin(self.bot.server, ctx.message.author):
             for member in self.bot.server.members:
                 Person(member.id, self.bot.redis).reset()
-            await self.bot.reply(text.CLEANSE, delete_after=MESSAGE_DELETE_AFTER)
+            await self.bot.reply(text.CLEANSE, delete_after=bot.MESSAGE_DELETE_AFTER)
         else:
-            await self.bot.reply(text.NO_RIGHTS, delete_after=MESSAGE_DELETE_AFTER)
+            await self.bot.reply(text.NO_RIGHTS, delete_after=bot.MESSAGE_DELETE_AFTER)
 
     @commands.command(pass_context=True, aliases=['profil', 'carte', 'card'])
     async def profile(self, ctx: commands.Context, member_id: str = None):
@@ -182,14 +181,14 @@ class ProfileCog(Cog):
                 content=text.PROFILE_SUCCESS.format(profile),
             )
         else:
-            await self.bot.reply(text.PROFILE_FAILURE, delete_after=MESSAGE_DELETE_AFTER)
+            await self.bot.reply(text.PROFILE_FAILURE, delete_after=bot.MESSAGE_DELETE_AFTER)
 
     @commands.command(pass_context=True, aliases=['merci'])
     async def thanks(self, ctx: commands.Context, member: str = None, reason: str = None):
         if member:
             user = enrich_user_id(self.bot.server, member) or ''
             if user.id == ctx.message.author.id:
-                await self.bot.reply(text.THANKS_SELF, delete_after=MESSAGE_DELETE_AFTER)
+                await self.bot.reply(text.THANKS_SELF, delete_after=bot.MESSAGE_DELETE_AFTER)
             else:
                 person = Person(user.id, self.bot.redis)
                 thanks_count = person.thanks()
@@ -198,20 +197,20 @@ class ProfileCog(Cog):
                         user.mention,
                         thanks_count,
                         reason,
-                    ), delete_after=MESSAGE_DELETE_AFTER)
+                    ), delete_after=bot.MESSAGE_DELETE_AFTER)
                 else:
                     await self.bot.reply(text.THANKS_ACTION.format(
                         user.mention,
                         thanks_count
-                    ), delete_after=MESSAGE_DELETE_AFTER)
+                    ), delete_after=bot.MESSAGE_DELETE_AFTER)
         else:
             person = Person(ctx.message.author.id, self.bot.redis)
             thanks_count = person.fetch('thanks')
             if thanks_count:
                 thanks_count = int(thanks_count)
-                await self.bot.reply(text.THANKS.format(thanks_count), delete_after=MESSAGE_DELETE_AFTER)
+                await self.bot.reply(text.THANKS.format(thanks_count), delete_after=bot.MESSAGE_DELETE_AFTER)
             else:
-                await self.bot.reply(text.THANKS_NONE, delete_after=MESSAGE_DELETE_AFTER)
+                await self.bot.reply(text.THANKS_NONE, delete_after=bot.MESSAGE_DELETE_AFTER)
 
     @commands.command(pass_context=True, aliases=['dispo'])
     async def available(self, ctx: commands.Context, cmd: str, *args):
@@ -227,16 +226,16 @@ class ProfileCog(Cog):
                 for member in members:
                     if Person(member.id, self.bot.redis).available:
                         if len(output + '\n+ {}'.format(text.AVAILABILITY_TRUE.format(member))) >= 1800:
-                            await self.bot.reply(output, delete_after=MESSAGE_DELETE_AFTER)
+                            await self.bot.reply(output, delete_after=bot.MESSAGE_DELETE_AFTER)
                             output = '```diff'
                         output += '\n+ {}'.format(text.AVAILABILITY_TRUE.format(member))
             output += '```'
-            await self.bot.reply(output, delete_after=MESSAGE_DELETE_AFTER)
+            await self.bot.reply(output, delete_after=bot.MESSAGE_DELETE_AFTER)
         elif cmd == 'oui' or cmd == 'non':
             r = Person(ctx.message.author.id, self.bot.redis).set_availability(cmd)
             await self.bot.reply(text.AVAILABILITY_CHANGE.format(
                 ctx.message.author
-            ), delete_after=MESSAGE_DELETE_AFTER)
+            ), delete_after=bot.MESSAGE_DELETE_AFTER)
         else:
             user = enrich_user_id(self.bot.server, cmd)
             if user:
@@ -255,9 +254,9 @@ class ProfileCog(Cog):
                         else:
                             pass
                 output += '\n```'
-                await self.bot.reply(output, delete_after=MESSAGE_DELETE_AFTER)
+                await self.bot.reply(output, delete_after=bot.MESSAGE_DELETE_AFTER)
             else:
-                await self.bot.reply(text.AVAILABILITY_WRONG_ARGS, delete_after=MESSAGE_DELETE_AFTER)
+                await self.bot.reply(text.AVAILABILITY_WRONG_ARGS, delete_after=bot.MESSAGE_DELETE_AFTER)
 
     @commands.command(pass_context=True, aliases=['titre', 'title'])
     async def nick(self, ctx: commands.Context, cmd: str = None, input_title: str = None):
@@ -266,32 +265,32 @@ class ProfileCog(Cog):
                 enriched_user = enrich_user_id(self.bot.server, cmd)
                 user_title = Person(enriched_user.id, self.bot.redis).fetch('title')
                 if not user_title:
-                    await self.bot.reply(text.NO_NICK, delete_after=MESSAGE_DELETE_AFTER)
+                    await self.bot.reply(text.NO_NICK, delete_after=bot.MESSAGE_DELETE_AFTER)
                 else:
                     await self.bot.reply(text.HAS_NICK.format(
                         enriched_user.mention,
                         user_title
-                    ), delete_after=MESSAGE_DELETE_AFTER)
+                    ), delete_after=bot.MESSAGE_DELETE_AFTER)
             if cmd == 'edit' or cmd== 'set':
                 if not input_title:
-                    await self.bot.reply(text.USAGE_NICK, delete_after=MESSAGE_DELETE_AFTER)
+                    await self.bot.reply(text.USAGE_NICK, delete_after=bot.MESSAGE_DELETE_AFTER)
                 else:
                     if len(input_title) > 24:
-                        await self.bot.reply(text.TOO_LONG_NICK, delete_after=MESSAGE_DELETE_AFTER)
+                        await self.bot.reply(text.TOO_LONG_NICK, delete_after=bot.MESSAGE_DELETE_AFTER)
                     else:
                         title = re.sub('[`\'"@&^%$!*()+=-]', '', input_title)
                         Person(ctx.message.author.id, self.bot.redis).update('title', title)
-                        await self.bot.reply(text.UPDATED_NICK.format(title), delete_after=MESSAGE_DELETE_AFTER)
+                        await self.bot.reply(text.UPDATED_NICK.format(title), delete_after=bot.MESSAGE_DELETE_AFTER)
         else:
             author = ctx.message.author
             user_title = Person(author.id, self.bot.redis).title
             if not user_title:
-                await self.bot.reply(text.NO_SELF_NICK, delete_after=MESSAGE_DELETE_AFTER)
+                await self.bot.reply(text.NO_SELF_NICK, delete_after=bot.MESSAGE_DELETE_AFTER)
             else:
                 await self.bot.reply(text.HAS_SELF_NICK.format(
                     author.mention,
                     user_title
-                ), delete_after=MESSAGE_DELETE_AFTER)
+                ), delete_after=bot.MESSAGE_DELETE_AFTER)
 
     @commands.command(pass_context=True, aliases=['description'])
     async def desc(self, ctx: commands.Context, cmd: str = None, input_desc: str = None):
@@ -300,29 +299,29 @@ class ProfileCog(Cog):
                 enriched_user = enrich_user_id(self.bot.server, cmd)
                 user_desc = Person(enriched_user.id, self.bot.redis).fetch('desc')
                 if not user_desc:
-                    await self.bot.reply(text.NO_DESC, delete_after=MESSAGE_DELETE_AFTER)
+                    await self.bot.reply(text.NO_DESC, delete_after=bot.MESSAGE_DELETE_AFTER)
                 else:
                     await self.bot.reply(text.HAS_DESC.format(
                         enriched_user.mention,
                         user_desc
-                    ), delete_after=MESSAGE_DELETE_AFTER)
+                    ), delete_after=bot.MESSAGE_DELETE_AFTER)
             if cmd == 'edit' or cmd == 'set':
                 if not input_desc:
-                    await self.bot.reply(text.USAGE_DESC, delete_after=MESSAGE_DELETE_AFTER)
+                    await self.bot.reply(text.USAGE_DESC, delete_after=bot.MESSAGE_DELETE_AFTER)
                 else:
                     if len(input_desc) > 150:
-                        await self.bot.reply(text.TOO_LONG_DESC, delete_after=MESSAGE_DELETE_AFTER)
+                        await self.bot.reply(text.TOO_LONG_DESC, delete_after=bot.MESSAGE_DELETE_AFTER)
                     else:
                         Person(ctx.message.author.id, self.bot.redis).update('desc', input_desc)
-                        await self.bot.reply(text.UPDATED_DESC.format(input_desc), delete_after=MESSAGE_DELETE_AFTER)
+                        await self.bot.reply(text.UPDATED_DESC.format(input_desc), delete_after=bot.MESSAGE_DELETE_AFTER)
         else:
             author = ctx.message.author
             user_desc = Person(author.id, self.bot.redis).desc
             if not user_desc:
-                await self.bot.reply(text.NO_SELF_DESC, delete_after=MESSAGE_DELETE_AFTER)
+                await self.bot.reply(text.NO_SELF_DESC, delete_after=bot.MESSAGE_DELETE_AFTER)
             else:
                 await self.bot.reply(text.HAS_SELF_DESC.format(
-                    user_desc), delete_after=MESSAGE_DELETE_AFTER)
+                    user_desc), delete_after=bot.MESSAGE_DELETE_AFTER)
 
     @commands.command()
     async def badge(self, member):

@@ -1,7 +1,6 @@
 from discord.ext import commands
 
 from kernel import enrich_user_id, enrich_emoji, text, bot
-from kernel.bot import MESSAGE_DELETE_AFTER
 from kernel.replies import reply
 from kernel.cogs import Cog
 
@@ -19,8 +18,7 @@ class ListenersCog(Cog):
             game=discord.Game(name=bot.GAME))
 
     async def on_message(self, message):
-        if not await reply(message, self.bot):
-            await self.bot.process_commands(message)
+        await reply(message, self.bot)
 
     async def on_message_edit(self, before, after):
         if not await reply(after, self.bot):
@@ -51,10 +49,10 @@ class CommandsCog(Cog):
         author = ctx.message.author
         server = ctx.message.server
         if not user_id:
-            await self.bot.reply(text.SELF_AVATAR.format(author), delete_after=MESSAGE_DELETE_AFTER)
+            await self.bot.reply(text.SELF_AVATAR.format(author), delete_after=bot.MESSAGE_DELETE_AFTER)
         else:
             member = enrich_user_id(server, user_id)
-            await self.bot.reply(text.USER_AVATAR.format(member), delete_after=MESSAGE_DELETE_AFTER)
+            await self.bot.reply(text.USER_AVATAR.format(member), delete_after=bot.MESSAGE_DELETE_AFTER)
 
     @commands.command(pass_context=True, aliases=['headshot', 'close', 'expel'])
     async def kill(self, ctx: commands.Context):
@@ -62,16 +60,16 @@ class CommandsCog(Cog):
             await self.bot.reply(text.KILL)
             await self.bot.close()
         else:
-            await self.bot.reply(text.NO_RIGHTS, delete_after=MESSAGE_DELETE_AFTER)
+            await self.bot.reply(text.NO_RIGHTS, delete_after=bot.MESSAGE_DELETE_AFTER)
 
     @commands.command(aliases=['who', 'quiestu', 'kernelbot'])
     async def whoareyou(self):
-        await self.bot.reply(text.WHOAREYOU, delete_after=MESSAGE_DELETE_AFTER)
+        await self.bot.reply(text.WHOAREYOU, delete_after=bot.MESSAGE_DELETE_AFTER)
 
     @commands.command()
     async def role(self, user: str = None):
         if not user:
-            await self.bot.reply(text.COMMAND_NO_ARGS_GIVEN.format('role'), delete_after=MESSAGE_DELETE_AFTER)
+            await self.bot.reply(text.COMMAND_NO_ARGS_GIVEN.format('role'), delete_after=bot.MESSAGE_DELETE_AFTER)
         else:
             member = enrich_user_id(self.bot.server, user)
             output = text.ROLE.format(member)
@@ -81,7 +79,7 @@ class CommandsCog(Cog):
                         re.sub('@', '', role.name)
                     )
             output += '```'
-            await self.bot.reply(output, delete_after=MESSAGE_DELETE_AFTER)
+            await self.bot.reply(output, delete_after=bot.MESSAGE_DELETE_AFTER)
 
     @commands.command(pass_context=True)
     async def hug(self, ctx: commands.Context, user: str):
