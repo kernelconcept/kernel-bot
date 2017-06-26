@@ -4,19 +4,6 @@ text.py
 Container for text responses.
 """
 
-HUGS = [
-    '(づ｡◕‿‿◕｡)づ',
-    '(੭ु｡╹▿╹｡)੭ु⁾⁾',
-    'c⌒っ╹v╹ )っ',
-    '(つ ͡° ͜ʖ ͡°)つ',
-    'ʕっ•ᴥ•ʔっ',
-    '⊂(◉‿◉)つ',
-    '⊂((・▽・))⊃',
-    '(っ⇀⑃↼)っ',
-    '(.づσ▿σ)づ.',
-    '(づ￣ ³￣)づ',
-        ]
-
 
 BOT_DESC = """Le bot Discord de Kernel.
 Cool, opérationnel, mais ne fait pas de câlins."""
@@ -104,3 +91,19 @@ USAGE_DESC = "tu dois fournir une description entre guillemets (e.g. : `!desc ed
 HAS_BADGES = "{} dispose des badges suivants: \n\n{}"
 NO_BADGES = "{} n\'a pas de badges."
 BADGE_NOT_FOUND = "ce badge n\'existe pas (ou tu n\'as simplement pas donné un ID de badge)."
+
+# `hug` command
+
+HUGS = [
+    '(づ｡◕‿‿◕｡)づ',
+    '(੭ु｡╹▿╹｡)੭ु⁾⁾',
+    'c⌒っ╹v╹ )っ',
+    '(つ ͡° ͜ʖ ͡°)つ',
+    'ʕっ•ᴥ•ʔっ',
+    '⊂(◉‿◉)つ',
+    '⊂((・▽・))⊃',
+    '(っ⇀⑃↼)っ',
+    '(.づσ▿σ)づ.',
+    '(づ￣ ³￣)づ',
+        ]
+HUG_BOT = "{} s\'exhibe contre du métal froid (j\'suis un bot, tu t'attendais à quoi ?)."

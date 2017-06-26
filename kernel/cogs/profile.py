@@ -7,7 +7,7 @@ from discord.ext import commands
 from kernel import text, enrich_user_id, has_admin, fetch_users_from_role, enrich_role_id, enrich_role_name, bot
 from kernel.image import generate_profile
 from kernel.cogs import Cog
-from kernel import db
+from kernel import db, has_power
 
 import re
 
@@ -86,6 +86,9 @@ class Person(db.RedisMixin):
         self.update('thanks', thanks + 1)
         return self.thanks_count - 1
 
+def field_interface(key, member, command) -> int:
+    pass
+
 
 class ProfileCog(Cog):
     """
@@ -119,7 +122,7 @@ class ProfileCog(Cog):
     async def drift(self, ctx:commands.context, person_id, thanks_only):
         person = enrich_user_id(self.bot.server, person_id)
 
-        if ctx.message.author.id == '132253217529659393':
+        if has_power(ctx.message.author):
             if thanks_only == 'y':
                 Person(person.id, self.bot.redis).update('thanks', 0)
                 await self.bot.reply(text.RESET, delete_after=bot.MESSAGE_DELETE_AFTER)
@@ -131,7 +134,7 @@ class ProfileCog(Cog):
     async def turbocharge(self, ctx: commands.context, person_id):
         person = enrich_user_id(self.bot.server, person_id)
 
-        if ctx.message.author.id == '132253217529659393':
+        if has_power(ctx.message.author):
             person = Person(person.id, self.bot.redis)
             person.update('turbo', True)
             person.update('thanks', 99)
@@ -149,7 +152,7 @@ class ProfileCog(Cog):
             await self.bot.reply(text.NO_RIGHTS, delete_after=bot.MESSAGE_DELETE_AFTER)
 
     @commands.command(pass_context=True, aliases=['profil', 'carte', 'card'])
-    async def profile(self, ctx: commands.Context, member_id: str = None):
+    async def profile(self, ctx: commands.Context, member_id: str = None, url: str = None):
         member = None
         if member_id:
             member = enrich_user_id(self.bot.server, member_id)
@@ -172,7 +175,8 @@ class ProfileCog(Cog):
             profile.avatar_url,
             profile_thanks or 0,
             profile_badges or None,
-            turbo
+            turbo,
+            url
         )
         if picture:
             await self.bot.send_file(
@@ -271,7 +275,7 @@ class ProfileCog(Cog):
                         enriched_user.mention,
                         user_title
                     ), delete_after=bot.MESSAGE_DELETE_AFTER)
-            if cmd == 'edit' or cmd== 'set':
+            if cmd == 'edit' or cmd == 'set':
                 if not input_title:
                     await self.bot.reply(text.USAGE_NICK, delete_after=bot.MESSAGE_DELETE_AFTER)
                 else:
@@ -355,8 +359,9 @@ class ProfileCog(Cog):
 
     @commands.command(pass_context=True)
     async def badgeedit(self, ctx: commands.Context, badge_id, key, value):
-        if ctx.message.author.id == '132253217529659393':
+        if has_power(ctx.message.author):
             badge = Badge(badge_id, self.bot.redis)
+            badge.init()
             badge.update(key, value)
             await self.bot.reply('la valeur est mise à jour.')
 
@@ -364,7 +369,7 @@ class ProfileCog(Cog):
     async def badgegrant(self, ctx: commands.Context, member_id, badge_id):
         member = enrich_user_id(self.bot.server, member_id)
 
-        if ctx.message.author.id == '132253217529659393':
+        if has_power(ctx.message.author):
             member_redis = Person(member.id, self.bot.redis)
             badge = Badge(badge_id, self.bot.redis)
             if badge.exists:

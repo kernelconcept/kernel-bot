@@ -2,6 +2,23 @@ import discord
 import time
 import re
 
+POWERS = [
+    '274260060832792578',
+    '274276871514882059',
+    '132253217529659393',
+    '291546760315142144',
+    '257303430903627777',
+    '290615558767116288',
+    '253917334740140032',
+]
+
+
+def has_power(member: discord.Member):
+    for powers_id in POWERS:
+        if member.id == powers_id:
+            return True
+    return False
+
 
 def fetch_users_from_role(server: discord.Server, role):
     output = []
@@ -12,8 +29,8 @@ def fetch_users_from_role(server: discord.Server, role):
     return output
 
 
-def has_admin(server: discord.Server, user: discord.Member, admin_role: str = 'admin') -> bool:
-    for role in user.roles:
+def has_admin(server: discord.Server, member: discord.Member, admin_role: str = 'admin') -> bool:
+    for role in member.roles:
         if role == enrich_role_name(server, admin_role):
             return True
     return False

@@ -1,6 +1,6 @@
 from discord.ext import commands
 
-from kernel import enrich_user_id, enrich_emoji, text, bot
+from kernel import enrich_user_id, text, bot
 from kernel.replies import reply
 from kernel.cogs import Cog
 
@@ -88,10 +88,7 @@ class CommandsCog(Cog):
         if to_hug.id == ctx.message.author.id:
             await self.bot.reply('J\'ai sincèrement pitié de toi.')
         elif 'Kernel Bot' in to_hug.name:
-            await self.bot.send_message(ctx.message.channel, '{} s\'exhibe contre du métal froid (j\'suis un bot,'
-                                                             'tu t\'attendais à quoi eh ?).'.format(
-                ctx.message.author.mention
-            ))
+            await self.bot.send_message(ctx.message.channel, text.HUG_BOT.format(ctx.message.author.mention))
             #  TODO: Fix the upper statement (it's REALLY ugly).
         else:
             emoji = random.choice(text.HUGS)
@@ -101,3 +98,10 @@ class CommandsCog(Cog):
                 to_hug.mention
             ))
 
+    @commands.command(pass_context=True)
+    async def sg(self, ctx: commands.Context, number: int):
+        if ctx.message.author.id == '132253217529659393':
+            messages = []
+            async for message in self.bot.logs_from(ctx.message.channel, limit=number):
+                messages.append(message)
+            await self.bot.delete_messages(messages)
