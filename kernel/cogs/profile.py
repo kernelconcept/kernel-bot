@@ -42,6 +42,10 @@ class Person(db.RedisMixin):
         self.key = 'person'
 
     @property
+    def house(self) -> str:
+        return self.fetch('house')
+
+    @property
     def title(self) -> str:
         return self.fetch('title')
 
