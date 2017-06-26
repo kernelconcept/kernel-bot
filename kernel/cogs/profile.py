@@ -42,6 +42,17 @@ class Person(db.RedisMixin):
         self.key = 'person'
 
     @property
+    def muted(self) -> bool:
+        r = self.fetch('muted')
+        if r:
+            if 'False' in r:
+                return False
+            elif 'True' in r:
+                return True
+        else:
+            return False
+
+    @property
     def house(self) -> str:
         return self.fetch('house')
 

@@ -55,4 +55,5 @@ class KernelBot(commands.Bot):
         self.add_cog(general.ListenersCog(self))
         self.add_cog(general.CommandsCog(self))
         self.add_cog(profile.ProfileCog(self))
+        self.add_cog(admin.AdminCog(self))
         super().run(self.token)

@@ -97,11 +97,3 @@ class CommandsCog(Cog):
                 emoji,
                 to_hug.mention
             ))
-
-    @commands.command(pass_context=True)
-    async def rewind(self, ctx: commands.Context, number: int):
-        if ctx.message.author.id == '132253217529659393':
-            messages = []
-            async for message in self.bot.logs_from(ctx.message.channel, limit=number):
-                messages.append(message)
-            await self.bot.delete_messages(messages)
