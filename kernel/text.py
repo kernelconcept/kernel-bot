@@ -4,19 +4,6 @@ text.py
 Container for text responses.
 """
 
-HUGS = [
-    '(づ｡◕‿‿◕｡)づ',
-    '(੭ु｡╹▿╹｡)੭ु⁾⁾',
-    'c⌒っ╹v╹ )っ',
-    '(つ ͡° ͜ʖ ͡°)つ',
-    'ʕっ•ᴥ•ʔっ',
-    '⊂(◉‿◉)つ',
-    '⊂((・▽・))⊃',
-    '(っ⇀⑃↼)っ',
-    '(.づσ▿σ)づ.',
-    '(づ￣ ³￣)づ',
-        ]
-
 
 BOT_DESC = """Le bot Discord de Kernel.
 Cool, opérationnel, mais ne fait pas de câlins."""
@@ -25,7 +12,6 @@ COMMAND_HAS_NO_SUBCOMMANDS = "La commande {0.name} n'a pas de sous-commandes."
 NEW_MEMBER = "Une nouvelle recrue a rejoint nos rangs. \n\n Bienvenue sur {0}, {1.mention} !"
 MEMBER_LEAVE = "Tristement, {0.mention} a décidé de quitter nos rangs. Nous ne t'oublierons jamais."
 MEMBER_BAN = "Les administrateurs ont fait retentir le marteau ! {0.name} a subi la sentence martiale et nous a quitté."
-
 
 # General replies
 NO_RIGHTS = "tu n'as pas le droit d'utiliser cette commande."
@@ -105,3 +91,19 @@ USAGE_DESC = "tu dois fournir une description entre guillemets (e.g. : `!desc ed
 HAS_BADGES = "{} dispose des badges suivants: \n\n{}"
 NO_BADGES = "{} n\'a pas de badges."
 BADGE_NOT_FOUND = "ce badge n\'existe pas (ou tu n\'as simplement pas donné un ID de badge)."
+
+# `hug` command
+
+HUGS = [
+    '(づ｡◕‿‿◕｡)づ',
+    '(੭ु｡╹▿╹｡)੭ु⁾⁾',
+    'c⌒っ╹v╹ )っ',
+    '(つ ͡° ͜ʖ ͡°)つ',
+    'ʕっ•ᴥ•ʔっ',
+    '⊂(◉‿◉)つ',
+    '⊂((・▽・))⊃',
+    '(っ⇀⑃↼)っ',
+    '(.づσ▿σ)づ.',
+    '(づ￣ ³￣)づ',
+        ]
+HUG_BOT = "{} s\'exhibe contre du métal froid (j\'suis un bot, tu t'attendais à quoi ?)."
