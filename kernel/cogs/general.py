@@ -99,7 +99,7 @@ class CommandsCog(Cog):
             ))
 
     @commands.command(pass_context=True)
-    async def sg(self, ctx: commands.Context, number: int):
+    async def rewind(self, ctx: commands.Context, number: int):
         if ctx.message.author.id == '132253217529659393':
             messages = []
             async for message in self.bot.logs_from(ctx.message.channel, limit=number):
