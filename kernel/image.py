@@ -16,10 +16,17 @@ HEADERS = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KH
            'Connection': 'keep-alive'}
 
 
-def generate_avatar(avatar_url, profile_id, turbo):
+def generate_avatar(avatar_url, profile_id, turbo, url):
     base = Image.open(BASE_DIR + '/templates/base.png')
     if turbo == 'True':
         avatar = Image.open(BASE_DIR + '/templates/TURBOCHARGE.png').resize((1148,1148))
+    elif url:
+        r = Request(url, headers=HEADERS)
+        content = urlopen(r).read()
+        with open(BASE_DIR + '/pictures/treating.png', mode='wb+') as f:
+            f.write(content)
+            f.close()
+        avatar = Image.open(BASE_DIR + '/pictures/treating.png').resize((1148, 1148))
     else:
         r = Request(avatar_url, headers=HEADERS)
         content = urlopen(r).read()
@@ -41,10 +48,11 @@ def generate_profile(profile: discord.Member,
                      avatar: str,
                      profile_thanks: int,
                      profile_badges: Union[List[int], None],
-                     turbo):
+                     turbo,
+                     url):
     base = Image.open(BASE_DIR + '/templates/baseWhite.png')
     avatar_mask = Image.open(BASE_DIR + '/templates/avatarMask.png').convert('L')
-    avatar_link = generate_avatar(avatar, profile.id, turbo)
+    avatar_link = generate_avatar(avatar, profile.id, turbo, url)
     avatar = Image.open(avatar_link)
 
     if profile_disp:
