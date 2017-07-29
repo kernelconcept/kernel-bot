@@ -4,13 +4,19 @@ text.py
 Container for text responses.
 """
 
+WELCOME_PM = "Bienvenue sur Kernel !\n\n" \
+             "Je suis le Kernel Bot, et je sers d'interface aux gens quant à leurs interactions sur Kernel.\n\n" \
+             "Pour commencer, il serait souhaitable que tu te présentes dans le channel #presentations et que tu " \
+             "te fasses une carte de membre sur le channel #bot (les commandes sont épinglés dans ce même channel). " \
+             "Merci ! Et de la part de toute l'équipe Kernel, on te souhaite la bienvenue sur notre serveur."
 
 BOT_DESC = """Le bot Discord de Kernel.
 Cool, opérationnel, mais ne fait pas de câlins."""
 COMMAND_NOT_FOUND = "La commande {} n'existe pas. Désolé."
 COMMAND_HAS_NO_SUBCOMMANDS = "La commande {0.name} n'a pas de sous-commandes."
 NEW_MEMBER = "Une nouvelle recrue a rejoint nos rangs. \n\n Bienvenue sur {0}, {1.mention} !"
-MEMBER_LEAVE = "Tristement, {0.mention} a décidé de quitter nos rangs. Nous ne t'oublierons jamais."
+MEMBER_LEAVE = "Tristement, {0.name} est le maillon faible. " \
+               "Le public le salue de loin en lui souhaitant une bonne continuation."
 MEMBER_BAN = "Les administrateurs ont fait retentir le marteau ! {0.name} a subi la sentence martiale et nous a quitté."
 
 # General replies

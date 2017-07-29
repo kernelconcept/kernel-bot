@@ -25,6 +25,7 @@ class ListenersCog(Cog):
             await self.bot.process_commands(after)
 
     async def on_member_join(self, member):
+        await self.bot.send_message(member, text.WELCOME_PM)
         await self.bot.send_message(self.bot.welcome_channel, text.NEW_MEMBER.format(bot.SERVER_NAME, member))
 
     async def on_member_remove(self, member):
